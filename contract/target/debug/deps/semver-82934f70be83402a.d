@@ -1,0 +1,14 @@
+/root/Hackathon/Wecycler/contract/target/debug/deps/semver-82934f70be83402a.rmeta: /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/lib.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/backport.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/display.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/error.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/eval.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/identifier.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/impls.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/parse.rs
+
+/root/Hackathon/Wecycler/contract/target/debug/deps/libsemver-82934f70be83402a.rlib: /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/lib.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/backport.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/display.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/error.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/eval.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/identifier.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/impls.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/parse.rs
+
+/root/Hackathon/Wecycler/contract/target/debug/deps/semver-82934f70be83402a.d: /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/lib.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/backport.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/display.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/error.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/eval.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/identifier.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/impls.rs /root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/parse.rs
+
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/lib.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/backport.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/display.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/error.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/eval.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/identifier.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/impls.rs:
+/root/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-1.0.18/src/parse.rs:
