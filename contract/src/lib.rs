@@ -153,13 +153,13 @@ impl Contract {
         self.products.insert(&self.find_index_prod_unord(id.clone()), &product);
         //update product_by_seller 
         let mut vec_products = self.products_by_seller.get(&env::signer_account_id()).unwrap_or_else(||Vec::new());
-        let index  = self.find_index_pro_vec(id) as usize;
+        let index  = self.find_index_pro_vec(id, &env::signer_account_id()) as usize;
         let _replace_element = std::mem::replace(&mut vec_products[index], product);
         self.products_by_seller.insert(&env::signer_account_id(), &vec_products);
     }
 
-    pub fn find_index_pro_vec(&self, id: ProductId) ->i32 {
-        let vec_products = self.products_by_seller.get(&env::signer_account_id()).unwrap_or_else(||Vec::new());
+    pub fn find_index_pro_vec(&self, id: ProductId, owner: &AccountId) ->i32 {
+        let vec_products = self.products_by_seller.get(owner).unwrap_or_else(||Vec::new());
         let mut i = 0;
         for pr in &vec_products {
             if pr.id == id {
@@ -190,7 +190,6 @@ impl Contract {
         self.total_product = 0;
     }
     
-
     pub fn get_all_products(&self)-> Vec<Product> {
         let mut all_products: Vec<Product> = Vec::new();
         let products = &self.products;
@@ -218,29 +217,35 @@ impl Contract {
     #[payable]
     pub fn payment(&mut self, product_id : ProductId) -> Promise {
         let mut product = self.get_product_by_id(product_id.clone());
+        let owner = product.clone().owner;
         const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000;
         let price = product.price*ONE_NEAR;
         let customer= env::signer_account_id();
-        assert_ne!(product.owner, customer, "You are owner");
+        assert_ne!(owner, customer, "You are owner");
         assert_eq!(price, env::attached_deposit(), "Not correct coin");
         
         let payment_info = EventLog {
             standard: "e-comerce-1.0.0".to_string(),
             event: EventLogVariant::Purchase(vec![PurchaseProduct {
-                owner_id: product.owner.to_string(),
-                product_name: product.clone().name,
+                owner_id: owner.to_string(),
+                product_name: product.name.clone(),
                 customer: customer.to_string(),
                 price,
                 memo: None,
             }])
         };
 
+        let index = self.find_index_pro_vec(product_id.clone(), &owner);
+        self.products_by_seller.get(&owner).unwrap().remove(index as usize);//remove product from user
 
-        //update product's owner
 
+        product.owner = customer;
+        self.product_by_id.insert(&product_id, &product);
+
+        let index_in_unord = self.find_index_prod_unord(product_id);
+        self.products.insert(&index_in_unord, &product);
 
         env::log_str(&payment_info.to_string());
-        Promise::new(product.owner).transfer(price)
+        Promise::new(owner).transfer(price)
     }    
 }
-// cruel sheriff talk into lawsuit vote cheap shock inspire gather cage funny
