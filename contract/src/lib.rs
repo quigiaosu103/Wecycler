@@ -1,34 +1,16 @@
 
 pub mod events;
+pub mod user;
+pub mod product;
+pub mod transaction;
+pub mod functions;
+// use functions::{find_index_pro_vec,find_index_prod_unord};
+use transaction::Transaction;
+use user::User;
+use product::{Product, ProductId};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
 use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise};
-use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize};
-pub type ProductId = String;
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct User {
-    id: AccountId,
-    name: String,
-    email_address: String,
-    role: String,
-}
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone, PartialEq)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Product {
-    id: ProductId,
-    name: String,
-    price: Balance,
-    owner: AccountId
-}
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Transaction {
-    seller: AccountId,
-    customer: AccountId,
-    product: ProductId,
-    price: Balance
-}
 
 
 #[near_bindgen]
@@ -96,7 +78,7 @@ impl Contract {
         self.user_by_id.insert(&id, &user);
         user
     }
-
+    
     pub fn get_user_by_id(&self, id: AccountId)-> User {
         assert!(self.user_by_id.contains_key(&id), "User is not exist");
         self.user_by_id.get(&id).unwrap()
@@ -182,7 +164,7 @@ impl Contract {
         -1
     }
 
-    //clear data for testing contract==============
+    // //clear data for testing contract==============
     pub fn clear_product(&mut self) {
         self.products.clear();
         self.product_by_id = LookupMap::new(b"product_by_id".try_to_vec().unwrap());
