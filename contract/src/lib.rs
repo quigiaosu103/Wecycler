@@ -4,29 +4,36 @@ pub mod user;
 pub mod product;
 pub mod transaction;
 pub mod functions;
+pub mod agent;
+pub mod campaign;
+use campaign::{Campaign,CampaignId, CampaignMetaData};
 // use functions::{find_index_pro_vec,find_index_prod_unord};
 use transaction::Transaction;
-use user::User;
-use product::{Product, ProductId};
+// use agent::{}
+use user::{User, UserMetaData};
+use product::{Product, ProductId, ProductMetaData};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
-use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise};
+use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self, sha256}, PanicOnDefault, Promise};
+use sha2::{Sha256, Digest};
 use near_sdk::borsh::{self, BorshDeserialize};
 
 
 #[near_bindgen]
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
 pub struct Contract {
+    contract_owner: AccountId,
     users: UnorderedMap<i32, User>,
     user_by_id: LookupMap<AccountId, User>,
-    sellers: UnorderedMap<i32, User>,
-    seller_by_id: LookupMap<i32, User>,
     products: UnorderedMap<i32, Product>,
     products_by_seller: LookupMap<AccountId, Vec<Product>>,
     product_by_id: LookupMap<ProductId, Product>,
+    campaigns: UnorderedMap<i32, Campaign>,
+    campaign_by_id: LookupMap<CampaignId, Campaign>,
     total_sellers: i32,
     total_users: i32,
     total_product: i32,
-    total_transaction: i32
+    total_transaction: i32,
+    total_campaign: i32,
 }
 
 #[near_bindgen]
@@ -34,22 +41,24 @@ impl Contract {
     #[init]
     pub fn new()->Self {
         Self {
+            contract_owner: env::signer_account_id(),
             users: UnorderedMap::new(b"users".try_to_vec().unwrap()),
             user_by_id: LookupMap::new(b"users by id".try_to_vec().unwrap()),
-            sellers: UnorderedMap::new(b"seller".try_to_vec().unwrap()),
-            seller_by_id: LookupMap::new(b"sellers by id".try_to_vec().unwrap()),
             products: UnorderedMap::new(b"products".try_to_vec().unwrap()),
             products_by_seller: LookupMap::new(b"products by user".try_to_vec().unwrap()),
             product_by_id: LookupMap::new(b"product by id".try_to_vec().unwrap()),
+            campaigns: UnorderedMap::new(b"users".try_to_vec().unwrap()),
+            campaign_by_id: LookupMap::new(b"product by id".try_to_vec().unwrap()),
             total_sellers: 0,
             total_users: 0,
             total_product: 0,
             total_transaction: 0,
+            total_campaign: 0
+
         }
     }
 //User----------------
-    //load account
-    pub fn get_signer_account(&mut self)-> User {
+    pub fn get_signer_account(&mut self)-> User {  //load account
         let id = env::signer_account_id();
         if self.check_new_user() {
             return self.user_by_id.get(&id).unwrap();
@@ -57,20 +66,19 @@ impl Contract {
         self.new_user()
     }
 
-    //check whether this id is already existed
-    pub fn check_new_user(&self)-> bool {
+    pub fn check_new_user(&self)-> bool { //check whether this id is already existed
         let id = env::signer_account_id();
         self.user_by_id.contains_key(&id)
     }
 
-    //call after check whether it is the first time this account connected
-    pub fn new_user(&mut self) ->User{
+    pub fn new_user(&mut self) ->User{ //call after check whether it is the first time this account connected
         let id = env::signer_account_id();
         let user = User {
             id: id.clone(),
-            name: "".to_string(),
-            email_address: "".to_string(),
-            role: "customer".to_string(),
+            meta_data: UserMetaData {
+                name: "".to_string(),
+                email_address: "".to_string(),
+            }
         };
         let total_users = self.total_users +1;
         self.total_users = total_users;
@@ -87,8 +95,8 @@ impl Contract {
     pub fn update_user(&mut self, name: String, email_address: String) {
         let id = env::signer_account_id();
         let mut user = self.user_by_id.get(&id).unwrap();
-        user.name = name;
-        user.email_address = email_address;
+        user.set_name(name);
+        user.set_email(email_address);
         self.user_by_id.insert(&id, &user);
         let mut index = 0;
         for us in &self.users {
@@ -100,25 +108,34 @@ impl Contract {
         self.users.insert(&index, &user);
     }
 
-
-
-
-    // pub fn register_seller(&self)
-//Product-----------------
+//Product=============================================================
     pub fn new_product(&mut self, name: String, price: Balance) {
-        let owner = env::signer_account_id();
         let total_products = self.total_product+1;
-        let id = total_products.to_string();
+        //--------------------hash
+        let data = price.to_string() + &total_products.to_string();
+        let mut hash = Sha256::new();
+        hash.update(data.as_bytes());
+
+        // Finalize the hash and obtain the output
+        let hashed_data = hash.finalize();
+        let hashed_key_str = format!("{:x}", hashed_data);
+        //---------hash
+        let owner = env::signer_account_id();
         let mut owner_products = self.products_by_seller.get(&owner).unwrap_or_else(|| Vec::new());
         let product  = Product {
-            id: id.clone(),
-            name,
+            id: hashed_key_str.clone(),
             price,
-            owner: owner.clone()
+            meta_data: ProductMetaData {
+                name,
+                description: "".to_string(),
+                image: "".to_string(),
+            },
+            owner: owner.clone(),
+            state: "init".to_string()
         };
 
         self.products.insert(&total_products, &product);
-        self.product_by_id.insert(&id, &product);
+        self.product_by_id.insert(&hashed_key_str, &product);
         owner_products.push(product);
         self.products_by_seller.insert(&owner, &owner_products);
         self.total_product = total_products;
@@ -184,6 +201,13 @@ impl Contract {
         all_products
     }
 
+    pub fn set_state(&mut self, state: String, id: ProductId) {
+        let mut product = self.get_product_by_id(id);
+        
+        product.state = state;
+
+    }
+
     pub fn get_product_by_owner(&self, id: AccountId)-> Vec<Product> {
         self.products_by_seller.get(&id).unwrap_or_else(||Vec::new())
     }
@@ -210,7 +234,7 @@ impl Contract {
             standard: "e-comerce-1.0.0".to_string(),
             event: EventLogVariant::Purchase(vec![PurchaseProduct {
                 owner_id: owner.to_string(),
-                product_name: product.name.clone(),
+                product_name: product.get_name().clone(),
                 customer: customer.to_string(),
                 price,
                 memo: None,
@@ -220,11 +244,11 @@ impl Contract {
         let index = self.find_index_pro_vec(product_id.clone(), &owner);
         self.products_by_seller.get(&owner).unwrap().remove(index as usize);//remove product from user
 
-
         product.owner = customer;
         self.product_by_id.insert(&product_id, &product);
 
         let index_in_unord = self.find_index_prod_unord(product_id);
+        self.products.remove(&index_in_unord);
         self.products.insert(&index_in_unord, &product);
 
         env::log_str(&payment_info.to_string());

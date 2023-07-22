@@ -1,0 +1,1 @@
+{"rustc":3257411903276762393,"features":"","target":0,"profile":0,"path":0,"deps":[[5258918646682315387,"build_script_build",false,11700503268072244163]],"local":[{"RerunIfChanged":{"output":"release/build/async-trait-eb119229406441ff/output","paths":["build.rs"]}}],"rustflags":[],"metadata":0,"config":0,"compile_kind":0}
