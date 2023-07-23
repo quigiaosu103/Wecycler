@@ -24,6 +24,7 @@
     "@near-wallet-selector/nightly-connect": "^8.1.4",
     "@near-wallet-selector/sender": "^8.1.4",
     "@near-wallet-selector/wallet-connect": "^8.1.4",
+    "@next/font": "^13.4.12",
     "@reduxjs/toolkit": "^1.9.3",
     "@types/node": "18.15.3",
     "@types/react": "18.0.28",

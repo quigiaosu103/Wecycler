@@ -4,8 +4,8 @@ import "./globals.css";
 import Header from "./Header";
 
 export const metadata = {
-  title: "Create Near App - Eamon Version",
-  description: "Create Near App - Eamon Version",
+  title: "Wecycler",
+  description: "Let cycler with us!",
 };
 
 export default function RootLayout({
@@ -17,11 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="">
         <Providers>
-          <div className="bg-[#f8f3ee] border-b border-gray-400 shadow-b shadow-md">
+          <div className="">
             <Header />
           </div>
           <div className="fit">{children}</div>
-          <div className="bg-[#f8f3ee] border-t border-gray-400 shadow-t shadow-md">
+          <div className=" border-t border-gray-400 shadow-t shadow-md">
             <Footer />
           </div>
         </Providers>

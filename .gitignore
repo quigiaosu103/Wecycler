@@ -2,6 +2,8 @@
 # Developer note: near.gitignore will be renamed to .gitignore upon project creation
 # dependencies
 node_modules
+/client/.next
+/client/node_modules
 /.pnp
 .pnp.js
 

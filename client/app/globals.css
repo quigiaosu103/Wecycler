@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-    body {
-        @apply relative bg-[#f8f3ee]
-    }
     .fit {
         min-height: calc(100vh - 95px);
     }
