@@ -6,17 +6,16 @@ pub mod transaction;
 pub mod functions;
 pub mod agent;
 pub mod campaign;
-use campaign::{Campaign,CampaignId, CampaignMetaData};
+use campaign::{Campaign,CampaignId, CampaignMetaData, Status};
 // use functions::{find_index_pro_vec,find_index_prod_unord};
-use transaction::Transaction;
+// use transaction::Transaction;
 // use agent::{}
-use user::{User, UserMetaData};
-use product::{Product, ProductId, ProductMetaData};
+use user::{User, UserMetaData, Role};
+use product::{Product, ProductId, ProductMetaData, State};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
-use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self, sha256}, PanicOnDefault, Promise};
-use sha2::{Sha256, Digest};
+use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self, sha256, signer_account_id}, PanicOnDefault, Promise};
 use near_sdk::borsh::{self, BorshDeserialize};
-
+pub const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000; 
 
 #[near_bindgen]
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
@@ -24,41 +23,66 @@ pub struct Contract {
     contract_owner: AccountId,
     users: UnorderedMap<i32, User>,
     user_by_id: LookupMap<AccountId, User>,
-    products: UnorderedMap<i32, Product>,
-    products_by_seller: LookupMap<AccountId, Vec<Product>>,
     product_by_id: LookupMap<ProductId, Product>,
     campaigns: UnorderedMap<i32, Campaign>,
     campaign_by_id: LookupMap<CampaignId, Campaign>,
+    collectors: UnorderedMap<i32, User>,
     total_sellers: i32,
     total_users: i32,
-    total_product: i32,
     total_transaction: i32,
     total_campaign: i32,
 }
 
+pub trait Function {
+    fn new()->Self;
+    fn new_campaign(&mut self, account_balance: Balance, fund: Balance, title: String,content :String, image: String, amount: u32, init_time: u64, deadline: u64) -> Campaign;
+    fn get_signer_account(&mut self)-> User;  //load account
+    fn check_new_user(&self)-> bool; //check whether this id is already exist;
+    fn new_user(&mut self) ->User; //call after check whether it is the first time this account connect;
+    fn get_user_by_id(&self, id: AccountId)-> User;
+    fn update_user(&mut self, name: String, email_address: String);
+    fn new_product(&mut self, name: String, description: String, image: String, total_supply: u32, camp_id: CampaignId);
+    fn clear_product(&mut self);
+    fn set_state(&mut self, id: ProductId, camp_id: CampaignId, is_valid: bool);
+    fn get_product_by_id(&self, id: ProductId)-> Product;
+    // fn payment(&mut self, product_id : ProductId) -> Promise;  
+    fn get_campaign_by_id(&self, id: CampaignId)->Campaign;
+    fn get_products_by_campaign(&self, id: CampaignId)-> Vec<Product>;
+    fn new_collector(&mut self) -> User;
+    fn update_product_data(&mut self, product: Product, key: &String);
+    fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign);
+    fn get_checkers(&self, camp_id: CampaignId) -> Vec<AccountId>;
+    fn apply_collector_in_camp(&mut self, camp_id: CampaignId, fee: Balance) -> Promise;
+    fn distribute_reward(&mut self, camp_id: CampaignId);
+    fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise;
+    fn set_camp_status(&mut self, status: Status, camp_id: CampaignId);
+
+    
+}
+
 #[near_bindgen]
-impl Contract {
+impl Function for Contract {
     #[init]
-    pub fn new()->Self {
+    fn new()->Self {
         Self {
             contract_owner: env::signer_account_id(),
             users: UnorderedMap::new(b"users".try_to_vec().unwrap()),
             user_by_id: LookupMap::new(b"users by id".try_to_vec().unwrap()),
-            products: UnorderedMap::new(b"products".try_to_vec().unwrap()),
-            products_by_seller: LookupMap::new(b"products by user".try_to_vec().unwrap()),
             product_by_id: LookupMap::new(b"product by id".try_to_vec().unwrap()),
-            campaigns: UnorderedMap::new(b"users".try_to_vec().unwrap()),
+            campaigns: UnorderedMap::new(b"campaigns".try_to_vec().unwrap()),
+            collectors: UnorderedMap::new(b"collectors".try_to_vec().unwrap()),
+            //products_by_campaign: containt products of a campaign           campaigns: UnorderedMap::new(b"users".try_to_vec().unwrap()),
             campaign_by_id: LookupMap::new(b"product by id".try_to_vec().unwrap()),
             total_sellers: 0,
             total_users: 0,
-            total_product: 0,
             total_transaction: 0,
             total_campaign: 0
 
         }
     }
+  
 //User----------------
-    pub fn get_signer_account(&mut self)-> User {  //load account
+    fn get_signer_account(&mut self)-> User {  //load account
         let id = env::signer_account_id();
         if self.check_new_user() {
             return self.user_by_id.get(&id).unwrap();
@@ -66,19 +90,20 @@ impl Contract {
         self.new_user()
     }
 
-    pub fn check_new_user(&self)-> bool { //check whether this id is already existed
+    fn check_new_user(&self)-> bool { //check whether this id is already existed
         let id = env::signer_account_id();
         self.user_by_id.contains_key(&id)
     }
 
-    pub fn new_user(&mut self) ->User{ //call after check whether it is the first time this account connected
+    fn new_user(&mut self) ->User{ //call after check whether it is the first time this account connected
         let id = env::signer_account_id();
         let user = User {
             id: id.clone(),
             meta_data: UserMetaData {
                 name: "".to_string(),
                 email_address: "".to_string(),
-            }
+            }, 
+            role: Role::Producer,
         };
         let total_users = self.total_users +1;
         self.total_users = total_users;
@@ -87,12 +112,12 @@ impl Contract {
         user
     }
     
-    pub fn get_user_by_id(&self, id: AccountId)-> User {
+    fn get_user_by_id(&self, id: AccountId)-> User {
         assert!(self.user_by_id.contains_key(&id), "User is not exist");
         self.user_by_id.get(&id).unwrap()
     }
 
-    pub fn update_user(&mut self, name: String, email_address: String) {
+    fn update_user(&mut self, name: String, email_address: String) {
         let id = env::signer_account_id();
         let mut user = self.user_by_id.get(&id).unwrap();
         user.set_name(name);
@@ -107,151 +132,194 @@ impl Contract {
         }
         self.users.insert(&index, &user);
     }
-
-//Product=============================================================
-    pub fn new_product(&mut self, name: String, price: Balance) {
-        let total_products = self.total_product+1;
-        //--------------------hash
-        let data = price.to_string() + &total_products.to_string();
-        let mut hash = Sha256::new();
-        hash.update(data.as_bytes());
-
-        // Finalize the hash and obtain the output
-        let hashed_data = hash.finalize();
-        let hashed_key_str = format!("{:x}", hashed_data);
-        //---------hash
-        let owner = env::signer_account_id();
-        let mut owner_products = self.products_by_seller.get(&owner).unwrap_or_else(|| Vec::new());
-        let product  = Product {
-            id: hashed_key_str.clone(),
-            price,
-            meta_data: ProductMetaData {
-                name,
-                description: "".to_string(),
-                image: "".to_string(),
+//Campaign====================================
+    fn new_campaign(&mut self, account_balance: Balance, fund: Balance, title: String,content :String, image: String, amount: u32, init_time: u64, deadline: u64) -> Campaign {
+        assert!(account_balance>fund, "Your balance is not enough!");
+        let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
+        let total_camp = self.campaigns.len();
+        let new_camp = Campaign {
+            id: id.clone(),
+            owner: env::signer_account_id(),
+            fund,
+            checkers: Vec::new(),
+            products: Vec::new(),
+            meta_data: CampaignMetaData {
+                title,
+                content,
+                image
             },
-            owner: owner.clone(),
-            state: "init".to_string()
+            total_products_expected: amount,
+            total_products: 0,
+            total_producers: 0,
+            deadline,
+            init_time,
+            status: Status::Init,
         };
 
-        self.products.insert(&total_products, &product);
-        self.product_by_id.insert(&hashed_key_str, &product);
-        owner_products.push(product);
-        self.products_by_seller.insert(&owner, &owner_products);
-        self.total_product = total_products;
+        self.campaigns.insert(&(total_camp as i32), &new_camp);
+        self.campaign_by_id.insert(&id, &new_camp);
+        new_camp
+    }  
+
+    fn get_campaign_by_id(&self, id: CampaignId)-> Campaign {
+        self.campaign_by_id.get(&id).clone().unwrap()
     }
 
-
-    pub fn update_price(&mut self, id: ProductId, price: Balance) {
-        let mut product = self.product_by_id.get(&id).unwrap();
-        assert_eq!(env::signer_account_id(), product.owner, "You dont have permission to update!");
-        product.price = price;
-        //update product by id
-        self.product_by_id.insert(&id, &product);
-        //update products
-        self.products.insert(&self.find_index_prod_unord(id.clone()), &product);
-        //update product_by_seller 
-        let mut vec_products = self.products_by_seller.get(&env::signer_account_id()).unwrap_or_else(||Vec::new());
-        let index  = self.find_index_pro_vec(id, &env::signer_account_id()) as usize;
-        let _replace_element = std::mem::replace(&mut vec_products[index], product);
-        self.products_by_seller.insert(&env::signer_account_id(), &vec_products);
+    fn get_products_by_campaign(&self, id: CampaignId) -> Vec<Product> {
+        self.get_campaign_by_id(id).get_all_products().clone()
     }
 
-    pub fn find_index_pro_vec(&self, id: ProductId, owner: &AccountId) ->i32 {
-        let vec_products = self.products_by_seller.get(owner).unwrap_or_else(||Vec::new());
-        let mut i = 0;
-        for pr in &vec_products {
-            if pr.id == id {
-                return i;
-            }
-            i+=1;
-        }
-        -1
-    }
-
-    pub fn find_index_prod_unord(&self, id: ProductId)->i32 {
-        let mut i = 0;
-        let products = &self.products;
-        for prd in products{
-            if prd.1.id == id {
-                return i;
-            }
-            i+=1;
-        }
-        -1
-    }
-
-    // //clear data for testing contract==============
-    pub fn clear_product(&mut self) {
-        self.products.clear();
-        self.product_by_id = LookupMap::new(b"product_by_id".try_to_vec().unwrap());
-        self.products_by_seller = LookupMap::new(b"products_by_seller".try_to_vec().unwrap());
-        self.total_product = 0;
-    }
-    
-    pub fn get_all_products(&self)-> Vec<Product> {
-        let mut all_products: Vec<Product> = Vec::new();
-        let products = &self.products;
-        let len = self.products.len();
-        for i in 0..=len {
-            if let Some(product) = products.get(&(i as i32)) {
-                all_products.push(product);
-            }
-        }
-        all_products
-    }
-
-    pub fn set_state(&mut self, state: String, id: ProductId) {
-        let mut product = self.get_product_by_id(id);
-        
-        product.state = state;
-
-    }
-
-    pub fn get_product_by_owner(&self, id: AccountId)-> Vec<Product> {
-        self.products_by_seller.get(&id).unwrap_or_else(||Vec::new())
-    }
-
-    pub fn get_total_products(&self)-> i32 {
-        self.total_product
-    }
-
-    pub fn get_product_by_id(&self, id: ProductId)-> Product {
-        self.product_by_id.get(&id).unwrap()
+    fn set_camp_status(&mut self, status: Status, camp_id: CampaignId) {
+        let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        camp.status = status;
+        self.update_camp_data(camp_id, &mut camp);
     }
 
     #[payable]
-    pub fn payment(&mut self, product_id : ProductId) -> Promise {
-        let mut product = self.get_product_by_id(product_id.clone());
-        let owner = product.clone().owner;
-        const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000;
-        let price = product.price*ONE_NEAR;
-        let customer= env::signer_account_id();
-        assert_ne!(owner, customer, "You are owner");
-        assert_eq!(price, env::attached_deposit(), "Not correct coin");
-        
-        let payment_info = EventLog {
+    fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise {
+        let payment_info = EventLog { //info of transaction
             standard: "e-comerce-1.0.0".to_string(),
             event: EventLogVariant::Purchase(vec![PurchaseProduct {
-                owner_id: owner.to_string(),
-                product_name: product.get_name().clone(),
-                customer: customer.to_string(),
-                price,
+                receiver: id.to_string(),
+                sender: env::signer_account_id().to_string(),
+                amount: amount,
                 memo: None,
             }])
         };
+        //add new checker into checkers of this campaign
+        env::log_str(&payment_info.to_string());    
+        Promise::new(id).transfer(amount)
+    }
 
-        let index = self.find_index_pro_vec(product_id.clone(), &owner);
-        self.products_by_seller.get(&owner).unwrap().remove(index as usize);//remove product from user
+    fn distribute_reward(&mut self, camp_id: CampaignId) {
+        let camp = self.campaign_by_id.get(&camp_id).unwrap();
+        assert_eq!(camp.status, Status::End, "Campaign have not been ended!");
+        assert_eq!(camp.owner, env::signer_account_id(), "You are not owner of this campaign!");
+        let products = camp.clone().products;
+        for i in products {
+            let reward = functions::calculate_reward(i.clone(), camp.clone());
+            self.send_reward(i.owner.clone(), (reward * 0.8 *  (ONE_NEAR as f32)) as u128);
+            self.send_reward(i.collector, (reward * 0.2 *  (ONE_NEAR as f32)) as u128);
+        }
+    }
 
-        product.owner = customer;
-        self.product_by_id.insert(&product_id, &product);
+//Collector==========================================================
 
-        let index_in_unord = self.find_index_prod_unord(product_id);
-        self.products.remove(&index_in_unord);
-        self.products.insert(&index_in_unord, &product);
+    fn new_collector(&mut self) -> User {
+        let mut new_producer = self.get_user_by_id(env::signer_account_id());
+        assert_ne!(new_producer.role, Role::Collector, "You had been a collector already!");
+        let users = &self.users;
+        new_producer.role = Role::Collector;
+        self.collectors.insert(&(self.collectors.len() as i32), &new_producer);
+        let index = functions::find_index_user_unor(users, env::signer_account_id());
+        self.users.remove(&index);
+        self.users.insert(&index, &new_producer);
+        self.user_by_id.insert(&env::signer_account_id(), &new_producer);
+        new_producer
+    }
 
-        env::log_str(&payment_info.to_string());
-        Promise::new(owner).transfer(price)
-    }    
+    #[payable]
+    fn apply_collector_in_camp(&mut self, camp_id: CampaignId, fee: Balance) -> Promise{
+        let id = env::signer_account_id();
+        let user = self.user_by_id.get(&id).unwrap();
+        assert_eq!(user.role, Role::Collector, "You are not a collector!");//check role
+        let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        assert!(!camp.contains_checker(id.clone()), "You have been a checker before!"); //check if this account is a checker
+        assert_eq!(env::attached_deposit(), fee*ONE_NEAR, "Incorrect tooken");//check if input amount is mess with the amount had been set
+        camp.checkers.insert(camp.checkers.len(), id);
+        let payment_info = EventLog { //info of transaction
+                standard: "e-comerce-1.0.0".to_string(),
+                event: EventLogVariant::Purchase(vec![PurchaseProduct {
+                    receiver: camp.owner.to_string(),
+                    sender: env::signer_account_id().to_string(),
+                    amount: fee,
+                    memo: None,
+                }])
+            };
+        self.update_camp_data(camp_id, &mut camp); //add new checker into checkers of this campaign
+        env::log_str(&payment_info.to_string());    
+        Promise::new(camp.owner).transfer(fee) //give tooken from checker to owner of campaign
+    }
+
+    fn set_state(&mut self, id: ProductId, camp_id: CampaignId, is_valid: bool) {
+        let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        let mut product = self.get_product_by_id(id.clone());
+        let index = functions::find_index_pro_vec(camp.clone().products, id);
+        camp.products.remove(index as usize); //remove this product out of campaign
+        if is_valid {
+            if env::signer_account_id() != camp.owner {
+                assert!(camp.contains_checker(env::signer_account_id()), "you are not a checker in this campaign");
+                product.state = State::Validated;
+            }else {
+                product.state = State::Confirmed;
+                camp.products.push(product.clone());
+                self.update_camp_data(camp_id.clone(), &mut camp);
+            }   
+            //if valid: set state and insert into this campaign
+            camp.products.insert(index as usize, product.clone());
+        }
+        //save new data of product
+        self.update_product_data(product.clone(), &product.id);
+        //save new data of campaign
+        self.update_camp_data(camp_id, &mut camp);
+    }
+
+    fn get_checkers(&self, camp_id: CampaignId) -> Vec<AccountId> {
+        self.get_campaign_by_id(camp_id).checkers
+    }
+
+
+//Product=============================================================
+    fn new_product(&mut self, name: String, description: String, image: String, total_supply: u32, camp_id: CampaignId) {
+        assert!(self.campaign_by_id.contains_key(&camp_id), "Campaign id is not valid!");
+        let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        let total_products = camp.products.len();
+        //--------------------hash
+        let data = total_products.to_string();
+        let hashed_key_str = functions::generate_hash_key(data);
+        let owner = env::signer_account_id();
+        let product  = Product {
+            id: hashed_key_str.clone(),
+            meta_data: ProductMetaData {
+                name,
+                description,
+                image,
+            },
+            collector: owner.clone(),
+            owner: owner.clone(),
+            total_supply,
+            state: State::Init,
+            campaign_id: camp_id.clone()
+        };
+        //new product will be stored in products of campaign, and will be remove if it is not valid 
+        camp.products.insert(camp.products.len(), product.clone());
+        //save new product into lookupmap
+        self.update_product_data(product.clone(), &product.id);
+        //save new state of campaign
+        self.update_camp_data(camp_id, &mut camp);
+    }
+    
+    fn update_product_data(&mut self, product: Product, key: &String) {
+        self.product_by_id.insert(key, &product);
+        
+    }
+    
+    fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign) {
+        self.campaign_by_id.insert(&camp_id, &camp);
+        let index = functions::find_index_camp_vec(&self.campaigns, camp_id);
+        self.campaigns.remove(&index);
+        self.campaigns.insert(&index, &camp);
+    }
+    // //clear data for testing contract==============
+    fn clear_product(&mut self) {
+        // self.products.clear();
+        self.product_by_id = LookupMap::new(b"product_by_id".try_to_vec().unwrap());
+    }
+    
+    
+
+    fn get_product_by_id(&self, id: ProductId)-> Product {
+        self.product_by_id.get(&id).unwrap()
+    }
+
 }

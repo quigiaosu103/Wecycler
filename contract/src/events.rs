@@ -16,10 +16,9 @@ pub enum EventLogVariant {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "near_sdk::serde")]
 pub struct PurchaseProduct {
-  pub owner_id: String,
-  pub product_name: String,
-  pub customer: String,
-  pub price: Balance,
+  pub receiver: String,
+  pub sender: String,
+  pub amount: Balance,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub memo: Option<String>,
 }

@@ -8,8 +8,7 @@ pub type ProductId= String;
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Transaction {
-    pub seller: AccountId,
-    pub customer: AccountId,
-    pub product: ProductId,
+    pub sender: AccountId,
+    pub receiver: AccountId,
     pub price: Balance
 }

@@ -89,3 +89,16 @@ near login
 ```
 
 and then use the logged account to sign the transaction: `--accountId <your-account>`.
+<!-- //user init product->Product(campaign_id)
+//expected: 
+//-Campaign: be created -> calculate progress -> calculate percentage of producer's product-> end campaign -> send token to producer and collector
+//done: 
+//-Campaign: be created campaign
+//-Producer: create user -> push product
+//-Collector: create user-> register collector -> apply to an campaign -> validate
+//-product: be created-> be validated -> be confirmed
+//*  reward: % đóng góp * fund = 80% producer + 20% collector
+//fix update camp
+near call dev-1690113733666-73064811293791 new_product '{"name": "Vechais", "description":"vc", "image":"iameg", "camp_id":"f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828"}'  --accountId quiblc.testnet
+
+f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
