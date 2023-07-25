@@ -1,7 +1,7 @@
-import Providers from "@/context/Providers";
-import Footer from "./Footer";
 import "./globals.css";
-import Header from "./Header";
+import Providers from "@/context/Providers";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 export const metadata = {
   title: "Wecycler",
@@ -17,13 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="">
         <Providers>
-          <div className="">
-            <Header />
-          </div>
+          <Header />
           <div className="fit">{children}</div>
-          <div className=" border-t border-gray-400 shadow-t shadow-md">
-            <Footer />
-          </div>
+          <Footer />
         </Providers>
       </body>
     </html>

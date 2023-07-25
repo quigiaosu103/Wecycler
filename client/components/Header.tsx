@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CiSearch } from "react-icons/ci";
-import ConnectButton from "./ConnectButton";
+import ConnectButton from "../app/ConnectButton";
 
 interface IHeaderProps {}
 
