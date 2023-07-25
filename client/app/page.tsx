@@ -70,7 +70,7 @@ const CampaignSection = () => {
         <p className="text-2xl">
           Thay đổi cách ta nhìn về Recycle
         </p>
-        <Button href={"/"} classes={"text-white bg-[#59EC7A]"} content={"Learn More"}></Button>
+        <Button href={"/learn-more"} classes={"text-white bg-[#59EC7A]"} content={"Learn More"}></Button>
       </div>
 
       
