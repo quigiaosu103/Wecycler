@@ -12,8 +12,7 @@ import group from "/public/images/Group 175.png"
 import background from "/public/images/OBJECTS.png"
 
 
-import axeManImg from "/public/images/axeMan.svg"
-import buttonApply from "/public/images/buttonApply.svg"
+import buttonRegister from "/public/images/buttonRegister.png"
 
 const play = Play({
   subsets: ['latin'],
@@ -27,15 +26,15 @@ const amatic_SC = Amatic_SC({
 
 const IntroSection = () => {
   return (
-    <div className="flex flex-row text-[#59EC7A] max-w-[1440px] mx-auto lg:w-10/12">
+    <div className="flex flex-row text-black max-w-[1440px] mx-auto lg:w-10/12">
       <div className="left flex flex-col w-1/2 justify-center items-start h-screen gap-y-8">
-        <h1 className="text-4xl tracking-wide font-bold">
+        <h1  className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)}>
           OUR COLLECTOR PROGRAMS
         </h1>
-        <p className="text-3xl">
+        <p className={clsx("text-3xl tracking-wide font-bold", amatic_SC.className)}>
           Be a recycle collector
         </p>
-        <p className="text-3xl">
+        <p className={clsx("text-2xl tracking-wide", amatic_SC.className)}>
         Educate people about recycling and its benefit to the planet. Visit schools, markets and various organizations and encourage people to be more eco-friendly and conscious of their environment
         </p>
       </div>
@@ -55,7 +54,7 @@ const IntroSection = () => {
 
 const CampaignSection = () => {
   return (
-    <div className="relative flex flex-row text-[#59EC7A] max-w-[1440px] mx-auto lg:w-10/12">
+    <div className="relative flex flex-row text-black max-w-[1440px] mx-auto lg:w-10/12">
         <div className="absolute z-10 bottom-0">
         <Image
             src={imgSection3}
@@ -74,10 +73,10 @@ const CampaignSection = () => {
 
 
       <div className=" flex-col w-1/2 justify-center items-end h-screen gap-y-8 z-30 top-0">
-        <h1 className="text-6xl tracking-wide font-bold ">
+        <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)} >
         Attend Campaigns
         </h1>
-        <p className="text-2xl">
+        <p className={clsx("text-2xl tracking-wide font-bold", amatic_SC.className)}>
         While its important to tell everyone about recyclcling, we also need to show them how it is done. Join us as we pick up papers and plastics around communities. This can be done individually or with the team. 
         </p>
       </div>
@@ -115,7 +114,7 @@ const Volunte2Section = () => {
         <Image
           src={crump}
           alt={"image"}
-          className="w-full h-3/4"
+          className="w-3/4 h-3/4"
         ></Image>
         <p className={clsx(amatic_SC.className, "text-4xl font-bold mt-6")}>collector of the month</p>
         </div>
@@ -130,12 +129,38 @@ const Volunte2Section = () => {
     </div>
   )
 }
+const PlanSection = () => {
+  return (
+    <div className=" flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12">
+      <div className="topBlock flex">
+        <Image
+            src={group}
+            alt={"image"}
+            className="w-full h-3/4"
+          ></Image>
+      </div>
+    </div>
+  )
+}
 
 const RegisterSection = () => {
   return (
-    <div className=" flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12">
+    <div className=" relative flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-20 ">
+      <div className=' -z-10'>
+      <Image
+            src={background}
+            alt={"image"}
+            className=""
+          ></Image>
+      </div>
       
-      <Button href={"/"} classes={"text-white"} content={<Image src={buttonApply} alt="buttonApply"/>}></Button>  
+      <div className='absolute z-10 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 '>
+      <Button href={"/"} classes={"text-white"} content={<Image src={buttonRegister} alt="buttonApply"/>}></Button>  
+
+      </div>
+      
+
+
     </div>
   )
 }
@@ -148,6 +173,7 @@ export default function Home() {
         <CampaignSection/>
         <VolunteSection/>
         <Volunte2Section/>
+        <PlanSection/>
         <RegisterSection/>
       </div>
     </main>
