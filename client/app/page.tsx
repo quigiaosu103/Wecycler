@@ -4,7 +4,7 @@ import Button from "../components/Button"
 import Image from "next/image"
 
 import rightImage from "/public/images/Vectors.png"
-import imgSection2 from "/public/images/people.svg"
+import imgSection2 from "/public/images/People.svg"
 import handsImg from "/public/images/hands.svg"
 import handsGiveMoneyImg from "/public/images/handsGiveMoney.svg"
 import handsAndMoneyImg from "/public/images/handsAndMoney.svg"
