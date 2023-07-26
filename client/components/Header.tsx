@@ -50,13 +50,8 @@ const Header = (props: IHeaderProps) => {
               >
                 <p>Create</p>
               </Link>
-              <Link
-                href="https://facebook.com/eamondang"
-                target="_blank"
-                className="flex flex-col items-end justify-end group"
-              >
-                <p>Wallets</p>
-              </Link>
+              <ConnectButton />
+       
             </ul>
           </nav>
         </div>
