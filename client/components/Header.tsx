@@ -47,12 +47,8 @@ const Header = (props: IHeaderProps) => {
               >
                 <p>Create</p>
               </Link>
-              <Link
-                href="/"
-                className="flex flex-col items-end justify-end group py-3 px-6 rounded-se-5xl rounded-es-5xl rounded-ss-full rounded-ee-full bg-[#F1FFC7] "
-              >
-                <p>Connect Wallet</p>
-              </Link>
+              <ConnectButton />
+       
             </ul>
           </nav>
         </div>

@@ -4,7 +4,7 @@ import Button from "../components/Button"
 import Image from "next/image"
 
 import rightImage from "/public/images/Vectors.png"
-import imgSection2 from "/public/images/people.svg"
+import imgSection2 from "/public/images/People.svg"
 import handsImg from "/public/images/hands.svg"
 import handsGiveMoneyImg from "/public/images/handsGiveMoney.svg"
 import handsAndMoneyImg from "/public/images/handsAndMoney.svg"
@@ -34,7 +34,7 @@ const IntroSection = () => {
         <p className="text-3xl">
           Let Save The World
         </p>
-        <Button href={"/"} classes={"text-white bg-[#59EC7A]"} content={"Let's Get Started"}></Button>
+        <Button href={"/"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Let's Get Started"}></Button>
       </div>
 
       <div className="right w-1/2 flex items-center">
@@ -68,7 +68,7 @@ const CampaignSection = () => {
         <p className="text-2xl">
           Thay đổi cách ta nhìn về Recycle
         </p>
-        <Button href={"/learn-more"} classes={"text-white bg-[#59EC7A]"} content={"Learn More"}></Button>
+        <Button href={"/"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Learn More"}></Button>
       </div>
 
       
@@ -177,7 +177,7 @@ const ApplySection = () => {
           <p className="text-lg font-light">
             Our volunteers are passionate about saving the earth and contributing to a sustainable environment. Through our exciting volunteer activities and programs you will get to work the talk by attending recycling campaigns and being a recycle advocate and educator. Join us to “work the talk” when you apply to be part of the Reuse Volunteer team. 
           </p>
-          <Button href={"/"} classes={"text-white"} content={<Image src={buttonApply} alt="buttonApply"/>}></Button>  
+          <Button href={"/learn-more"} classes={"text-white"} content={<Image src={buttonApply} alt="buttonApply"/>}></Button>  
         </div>
     </div>
   )
