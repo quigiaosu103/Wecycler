@@ -30,7 +30,7 @@ const Header = (props: IHeaderProps) => {
           <nav>
             <ul className="hidden lg:flex items-center justify-between space-x-7 text-[#59EC7A] text-xl">
               <Link
-                href="https://youtube.com/@eamontech"
+                href={"/campaign"}
                 target="_blank"
                 className="flex flex-col items-end justify-end group"
               >

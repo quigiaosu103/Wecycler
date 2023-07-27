@@ -4,8 +4,7 @@ import Button from "../../components/Button"
 import Image from "next/image"
 
 import rightImage from "/public/images/page2.png"
-import imgSection2 from "/public/images/Posters.png"
-import imgSection3 from "/public/images/road.png"
+import road from "/public/images/road.png"
 import hand from "/public/images/hand.png"
 import crump from "/public/images/crumpled.png"
 import group from "/public/images/Group 175.png"
@@ -54,25 +53,16 @@ const IntroSection = () => {
 
 const CampaignSection = () => {
   return (
-    <div className="relative flex flex-row text-black max-w-[1440px] mx-auto lg:w-10/12">
-        <div className="absolute z-10 bottom-0">
+    <div className="relative flex flex-row justify-end text-black max-w-[1440px] mx-auto lg:w-10/12">
+        <div className="absolute z-10">
         <Image
-            src={imgSection3}
+            src={road}
             alt={"image"}
         ></Image>
         </div>
-      <div className=" w-1/2 flex items-center z-30">
-        <Image
-          src={imgSection2}
-          alt={"image"}
-          // layout='fill'
-          // objectFit='contain'
-          className="w-full h-3/4"
-        ></Image>
-      </div>
+      
 
-
-      <div className=" flex-col w-1/2 justify-center items-end h-screen gap-y-8 z-30 top-0">
+      <div className="flex flex-col w-1/2 justify-start h-screen gap-y-8 z-20 ">
         <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)} >
         Attend Campaigns
         </h1>
@@ -88,9 +78,9 @@ const CampaignSection = () => {
 
 const VolunteSection = () => {
   return (
-    <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 py-10">
-      <div className="topBlock flex flex-row space-x-20">
-        <div className="blockLeft w-1/2 flex flex-col items-center bg-[#10b981] ">
+    <div className="flex flex-col  text-black max-w-[1440px] mx-auto lg:w-10/12 py-10">
+      <div className="topBlock flex flex-row justify-center space-x-20">
+        <div className="blockLeft w-1/2 flex flex-col items-center bg-[#73d88b] ">
           <p className={clsx("text-6xl tracking-wide font-bold m-8", amatic_SC.className)}>"Community development"</p>
           <p className={clsx("text-2xl tracking-wide font-bold m-8", amatic_SC.className)}>"As a community development volunteer, you'll join our charity and give your time to disadvantaged communities to help distribute food, shelter and clothing and provide education. As you can imagine, this type of volunteering is one of the most challenging and diverse, while also being extremely rewarding."</p>
         </div>
@@ -118,7 +108,7 @@ const Volunte2Section = () => {
         ></Image>
         <p className={clsx(amatic_SC.className, "text-4xl font-bold mt-6")}>collector of the month</p>
         </div>
-      <div className="left flex flex-col w-1/2 justify-center items-start h-screen gap-y-8">
+      <div className="left flex flex-col w-1/2 items-start h-screen gap-y-8">
           <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)}>
             volunteering
           </h1>
