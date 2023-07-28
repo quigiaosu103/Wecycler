@@ -6,7 +6,6 @@ import { selectWallet } from "@/features/walletSlice";
 
 function ConnectWalletButton() {
   const wallet = useAppSelector(selectWallet);
-  console.log(wallet);
   const onConnectWalletClicked = async () => {
     if (!wallet)
       return {

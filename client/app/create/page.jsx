@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "@/context/store";
 import { selectWallet } from "@/features/walletSlice";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import clsx from "clsx";
 
 const initState = {
@@ -23,24 +23,6 @@ const page = () => {
   const wallet = useAppSelector(selectWallet);
   const isWalletConnected = !!wallet?.accountId;
 
-  if(!isWalletConnected){
-    if (!wallet)
-      return {
-        title: "Wallet not initialized",
-        description: "Please try again later",
-        status: "error",
-      };
-
-    if (wallet.accountId) {
-      return {
-        title: "Wallet already connected",
-        status: "info",
-      };
-    }
-
-    wallet.signIn();
-  }
-
   function handleChange({target}){
     console.log(state)
     setState((prev) => ({
@@ -51,8 +33,10 @@ const page = () => {
 
   async function createCampaign(e){
     e.preventDefault()
+    const args = {...state, fund: Number(state.fund), amount: Number(state.amount), deadline: new Date(state.deadline).getTime(), init_time: new Date(state.init_time).getTime()}
+    console.log(args)
     if(isWalletConnected){
-      await wallet.callMethod({contractId: 'dev-1690561706410-52327007706627', deposit: "1000000000000000000000000", method: 'new_campaign', state})
+      await wallet.callMethod({contractId: 'dev-1690561706410-52327007706627', deposit: "1000000000000000000000000", method: 'new_campaign', args })
     }
 
   }
@@ -62,9 +46,11 @@ const page = () => {
     const txhash = urlParams.get("transactionHashes")
 
     setIsSuccess(!!txhash)
+    if(txhash) alert("thành công!!!!")
   }, [])
 
-  return (isSuccess ?
+  return <>
+    {isSuccess ?
     (<div>Thành công!!!!!</div>
     ) : (
       <div className=" max-w-[1440px] mx-auto lg:w-10/12 pt-28">
@@ -85,8 +71,8 @@ const page = () => {
               <button onClick={createCampaign}>Create Campaign</button>
           </form>
       </div>
-    )
-  )
+    )}
+  </>
 }
 
-export default page
+export default memo(page)
