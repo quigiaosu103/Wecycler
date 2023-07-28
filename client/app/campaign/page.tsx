@@ -61,7 +61,7 @@ const SearchSection = () => {
             </div>
         </div>
       <div className="flex items-center ">
-        <Button href={"/"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Start Campaign"}></Button>  
+        <Button href={"/start-form"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Start Campaign"}></Button>  
 
       </div>
     </div>
