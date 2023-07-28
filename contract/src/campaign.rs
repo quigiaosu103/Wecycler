@@ -1,9 +1,8 @@
 use crate::product::Product;
-use crate::user::User;
-use near_sdk::{Balance, env, Promise};
+use near_sdk::{Balance};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize};
-use near_sdk::{AccountId, borsh::BorshSerialize, collections::LookupMap};
+use near_sdk::{AccountId, borsh::BorshSerialize};
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone, PartialEq, Debug)]
 #[serde(crate = "near_sdk::serde")]

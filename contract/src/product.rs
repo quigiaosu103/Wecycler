@@ -1,6 +1,6 @@
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize};
-use near_sdk::{AccountId, Balance, borsh::BorshSerialize};
+use near_sdk::{AccountId, borsh::BorshSerialize};
 
 use crate::campaign::CampaignId;
 pub type ProductId = String;
