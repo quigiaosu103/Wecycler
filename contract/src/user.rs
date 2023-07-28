@@ -1,3 +1,4 @@
+use near_sdk::Balance;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize};
 use near_sdk::{AccountId, borsh::BorshSerialize};
@@ -21,6 +22,7 @@ pub struct User {
 pub struct  UserMetaData {
     pub name: String,
     pub email_address: String,
+    pub balance: Balance,
 }
 
 impl User {
@@ -32,11 +34,19 @@ impl User {
         self.meta_data.email_address = mail;
     }
 
+    pub fn set_balance(&mut self, balance: Balance) {
+        self.meta_data.balance = balance;
+    }
+
     pub fn get_name(&self) -> String {
         self.meta_data.name.clone()
     }
 
     pub fn get_email(&self) -> String {
         self.meta_data.email_address.clone()
+    }
+
+    pub fn get_balance(&self) -> Balance {
+        self.meta_data.balance
     }
 }
