@@ -57,8 +57,6 @@ const CampaignSection = () => {
         <Image
           src={imgSection2}
           alt={"image"}
-          // layout='fill'
-          // objectFit='contain'
           className="w-full h-3/4"
         ></Image>
       </div>

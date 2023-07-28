@@ -28,24 +28,22 @@ const Header = (props: IHeaderProps) => {
         {/* Right */}
         <div className="flex space-x-4 items-center justify-end">
           <nav>
-            <ul className="hidden lg:flex items-center justify-between space-x-7 text-[#59EC7A] text-xl">
+            <ul className="hidden lg:flex items-center justify-between space-x-5 text-[#59EC7A] text-xl font-bold">
               <Link
-                href={"/campaign"}
-                className="flex flex-col items-end justify-end group"
+                href="/campaign"
+                className="flex flex-col items-end justify-end group p-3"
               >
                 <p>Campaign</p>
               </Link>
               <Link
-                href="https://t.me/eamondang"
-                target="_blank"
-                className="flex flex-col items-end justify-end group"
+                href="/"
+                className="flex flex-col items-end justify-end group p-3"
               >
                 <p>Collector</p>
               </Link>
               <Link
-                href="https://facebook.com/eamondang"
-                target="_blank"
-                className="flex flex-col items-end justify-end group"
+                href="/create"
+                className="flex flex-col items-end justify-end group p-3"
               >
                 <p>Create</p>
               </Link>
