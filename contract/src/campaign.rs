@@ -24,7 +24,7 @@ pub struct Campaign {
     pub meta_data: CampaignMetaData,
     pub total_products: u32,
     pub total_products_expected: u32,
-    pub total_producers: u32, 
+    pub total_checkers: u32, 
     pub deadline: u64,
     pub init_time: u64,
     pub status: Status,
@@ -37,7 +37,6 @@ pub type CampaignId = String;
 pub struct CampaignMetaData {
     pub title: String,
     pub content: String,
-    pub image: String,
 }
 
 impl Campaign {
@@ -55,14 +54,6 @@ impl Campaign {
 
     pub fn set_content(&mut self, content: String) {
         self.meta_data.content = content;
-    }
-
-    pub fn get_image(&self) -> String {
-        self.meta_data.image.clone()
-    }
-
-    pub fn set_image(&mut self, image: String) {
-        self.meta_data.image = image;
     }
 
     pub fn contains_checker(&self, id: AccountId) -> bool {

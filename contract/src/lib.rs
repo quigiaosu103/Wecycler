@@ -6,9 +6,6 @@ pub mod functions;
 pub mod agent;
 pub mod campaign;
 use campaign::{Campaign,CampaignId, CampaignMetaData, Status};
-// use functions::{find_index_pro_vec,find_index_prod_unord};
-// use transaction::Transaction;
-// use agent::{}
 use user::{User, UserMetaData, Role};
 use product::{Product, ProductId, ProductMetaData, State};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
@@ -43,7 +40,7 @@ pub trait Function {
     fn get_checkers(&self, camp_id: CampaignId) -> Vec<AccountId>;
     fn return_collector_fee(&self, fee: Balance);
 
-    fn new_campaign(&mut self, account_balance: Balance, fund: Balance, title: String,content :String, image: String, amount: u32, init_time: u64, deadline: u64) -> Campaign;
+    fn new_campaign(&mut self, fund: Balance, title: String,content :String, amount: u32, total_checkers: u32, init_time: u64, deadline: u64) -> Campaign;
     fn get_campaign_by_id(&self, id: CampaignId)->Campaign;
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId)-> Campaign;
     fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign);
@@ -59,9 +56,6 @@ pub trait Function {
     fn apply_collector_in_camp(&mut self, camp_id: CampaignId, fee: Balance) -> Promise;
     fn distribute_reward(&mut self, camp_id: CampaignId);
     fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise;
-    // fn deposit(&mut self, camp_id: CampaignId) -> String ;
-    // fn withdraw(&mut self, camp_id: CampaignId, current_time: u64);
-    // fn can_withdraw(&self, camp_id: &CampaignId, curr_time: u64) -> bool;
     
 }
 
@@ -140,9 +134,9 @@ impl Function for Contract {
     }
 //Campaign====================================
     #[payable]
-    fn new_campaign(&mut self, account_balance: Balance, fund: Balance, title: String,content :String, image: String, amount: u32, init_time: u64, deadline: u64) -> Campaign {
-        assert!(account_balance>fund, "Your balance is not enough!");
-        assert_eq!(env::attached_deposit(), fund * ONE_NEAR, "Wrong deponsit!");
+    fn new_campaign(&mut self, fund: Balance, title: String,content :String, total_checkers: u32, amount: u32, init_time: u64, deadline: u64) -> Campaign {
+        assert!(env::account_balance()>=fund, "Your balance is not enough!");
+        assert_eq!(env::attached_deposit(), fund, "Wrong deponsit!");
         let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
         let total_camp = self.campaigns.len();
         let new_camp = Campaign {
@@ -154,11 +148,10 @@ impl Function for Contract {
             meta_data: CampaignMetaData {
                 title,
                 content,
-                image
             },
             total_products_expected: amount,
             total_products: 0,
-            total_producers: 0,
+            total_checkers,
             deadline,
             init_time,
             status: Status::Init,

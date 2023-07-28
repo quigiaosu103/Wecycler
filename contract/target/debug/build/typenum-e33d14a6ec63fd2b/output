@@ -1,3 +1,3 @@
 cargo:rerun-if-changed=build/main.rs
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/root/Hackathon/Wecycler/contract/target/debug/build/typenum-e33d14a6ec63fd2b/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/root/Hackathon/Wecycler/contract/target/debug/build/typenum-e33d14a6ec63fd2b/out/op.rs
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/root/Hackathon/W2/Wecycler/contract/target/debug/build/typenum-e33d14a6ec63fd2b/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/root/Hackathon/W2/Wecycler/contract/target/debug/build/typenum-e33d14a6ec63fd2b/out/op.rs
