@@ -16,12 +16,6 @@ import CancelMark from "/public/images/CancelMark.png"
 
 import bg from "/public/images/img65.png"
 
-
-
-
-
-
-
 const play = Play({
   subsets: ['latin'],
   weight: ['400', '700']

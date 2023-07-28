@@ -1,11 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useAppSelector } from "@/context/store";
 import { selectWallet } from "@/features/walletSlice";
 
 function ConnectWalletButton() {
   const wallet = useAppSelector(selectWallet);
+  console.log(wallet);
   const onConnectWalletClicked = async () => {
     if (!wallet)
       return {
@@ -38,12 +39,14 @@ function ConnectWalletButton() {
   const isWalletConnected = !!wallet?.accountId;
 
   return isWalletConnected ? (
-    <button
-      onClick={signOutClick}
-      className="border border-gray-600 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-300 hover:border-b-4 hover:border-r-4 transition-all duration-100 font-medium ease-in-out"
-    >
-      {wallet.accountId?.split(".")[0]}
-    </button>
+    <>
+      <button
+        onClick={signOutClick}
+        className="border border-gray-600 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-300 hover:border-b-4 hover:border-r-4 transition-all duration-100 font-medium ease-in-out"
+      >
+        {wallet.accountId?.split(".")[0]}
+      </button>
+    </>
   ) : (
     <button
       onClick={onConnectWalletClicked}
