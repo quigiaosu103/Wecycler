@@ -8,7 +8,7 @@ interface IHeaderProps {}
 const Header = (props: IHeaderProps) => {
   return (
     <header className="fixed bg-white w-full">
-      <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-4 z-10">
+      <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-4 z-50">
         {/* Left */}
         <div className="flex space-x-8 items-center justify-start">
           <Link href="/" className="flex items-center space-x-2 z-10">

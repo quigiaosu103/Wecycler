@@ -13,7 +13,7 @@ const initState = {
   image: "123",
   amount: 0,
   init_time:  "",
-  deadline: ""
+  deadline: "",
 }
 
 const page = () => {
@@ -33,10 +33,10 @@ const page = () => {
 
   async function createCampaign(e){
     e.preventDefault()
+    console.log(process.env.NEAR_PUBLIC_CONTRACT_NAME)
     const args = {...state, fund: Number(state.fund), amount: Number(state.amount), deadline: new Date(state.deadline).getTime(), init_time: new Date(state.init_time).getTime()}
-    console.log(args)
     if(isWalletConnected){
-      await wallet.callMethod({contractId: 'dev-1690561706410-52327007706627', deposit: "1000000000000000000000000", method: 'new_campaign', args })
+      await wallet.callMethod({contractId: "dev-1690561706410-52327007706627", deposit: "1000000000000000000000000", method: 'new_campaign', args })
     }
 
   }
