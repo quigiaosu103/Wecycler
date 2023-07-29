@@ -102,3 +102,4 @@ and then use the logged account to sign the transaction: `--accountId <your-acco
 near call dev-1690523837612-22561678820162 new_campaign '{"account_balance": 100, "fund": 10, "title": "cp1", "content": "cp", "image": "im", "amount": 50, "init_time": 111, "deadline": 222}'  --accountId quiblc.testnet
 
 f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
+
