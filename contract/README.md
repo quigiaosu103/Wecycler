@@ -99,6 +99,6 @@ and then use the logged account to sign the transaction: `--accountId <your-acco
 //-product: be created-> be validated -> be confirmed
 //*  reward: % đóng góp * fund = 80% producer + 20% collector
 //fix update camp
-near call dev-1690113733666-73064811293791 new_product '{"name": "Vechais", "description":"vc", "image":"iameg", "camp_id":"f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828"}'  --accountId quiblc.testnet
+near call dev-1690523837612-22561678820162 new_campaign '{"account_balance": 100, "fund": 10, "title": "cp1", "content": "cp", "image": "im", "amount": 50, "init_time": 111, "deadline": 222}'  --accountId quiblc.testnet
 
 f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
