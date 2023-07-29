@@ -32,14 +32,14 @@ pub trait Function {
     fn new()->Self;
     fn get_signer_account(&mut self)-> User;  // lấy về thông tin của tài khoản đang đăng nhập
     fn new_user(&mut self) ->User; //tạo tài khoản người dùng mới
-    fn check_new_user(&self)-> bool; //kiểm tra tài khoản đã tồn tại trong hệ thống hay chưa
+    fn check_new_user(&self, id: AccountId)-> bool; //kiểm tra tài khoản đã tồn tại trong hệ thống hay chưa
     fn get_user_by_id(&self, id: AccountId)-> User; // lấy thông tin của 1 user
     fn update_user(&mut self, name: String, email_address: String, image: String); // cập nhật thông tin user
     fn new_collector(&mut self) -> User; //tạo collector mới
     fn get_checkers_by_campaign(&self, camp_id: CampaignId) -> Vec<User>; //lấy thông tin của tất cả collector của 1 chiến dịch
     fn return_collector_fee(&self, cammp_id: CampaignId); // trả lại cho collector lượng phí mà họ đã bỏ ra khi tham gia vào chiến dịch
 
-    fn new_campaign(&mut self, fund: Balance, title: String,content :String, image: String, amount: u32, total_checkers: u32, init_time: u64, deadline: u64) -> Campaign;// tạo chiến dịch mới
+    fn new_campaign(&mut self, id: CampaignId, fund: Balance, title: String,content :String, image: String, amount: u32, total_checkers: u32, init_time: u64, deadline: u64) -> Campaign;// tạo chiến dịch mới
     fn get_campaign_by_id(&self, id: CampaignId)->Campaign; // lấy thông tin của 1 chiến dịch
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId)-> Campaign; // dành cho owner của chiến dịch để thay đổi trạng thái của chiến dịch
     fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign); // cập nhật chiến dịch vào contract
@@ -85,9 +85,12 @@ impl Function for Contract {
         return self.user_by_id.get(&id).unwrap();
     }
 
-    fn check_new_user(&self)-> bool { //check whether this id is already existed
-        let id = env::signer_account_id();
+
+    fn check_new_user(&self, id: AccountId)-> bool { //check whether this id is already existed
+
+
         self.user_by_id.contains_key(&id)
+        
     }
 
     fn new_user(&mut self) ->User{ //call after check whether it is the first time this account connected
@@ -133,10 +136,10 @@ impl Function for Contract {
 
 //Campaign====================================
     #[payable]
-    fn new_campaign(&mut self, fund: Balance, title: String,content :String, image: String, total_checkers: u32, amount: u32, init_time: u64, deadline: u64) -> Campaign {
+    fn new_campaign(&mut self, id: CampaignId, fund: Balance, title: String,content :String, image: String, total_checkers: u32, amount: u32, init_time: u64, deadline: u64) -> Campaign {
         assert!(env::account_balance()>=fund, "Your balance is not enough!"); // kiểm tra người khởi tạo có đủ balance không
-        assert_eq!(env::attached_deposit(), fund, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
-        let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
+        assert_eq!(env::attached_deposit(), fund * ONE_NEAR, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
+        // let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
         let total_camp = self.campaigns.len();
         let new_camp = Campaign {
             id: id.clone(),
@@ -177,7 +180,12 @@ impl Function for Contract {
 
 
     fn get_products_by_campaign(&self, id: CampaignId) -> Vec<Product> {
-        self.products_by_campaign.get(&id).unwrap()
+        let prods_by_camp: Vec<Product> = self.products_by_campaign.get(&id).unwrap_or_else(||Vec::new());
+        let mut vec_prods: Vec<Product> = vec![]; 
+        for i in  prods_by_camp{
+            vec_prods.push(i);
+        }
+        vec_prods
     }
 
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId) -> Campaign{
@@ -255,12 +263,12 @@ impl Function for Contract {
         let id = env::signer_account_id();
         let user = self.user_by_id.get(&id).unwrap();
         assert_eq!(user.role, Role::Collector, "You are not a collector!");//check role
-        let vec_collectors_by_camp = self.collectors_by_campaign.get(&camp_id).unwrap();
+        let vec_collectors_by_camp: Vec<User> = self.collectors_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         let camp = self.campaign_by_id.get(&camp_id).unwrap();
         assert!(!functions::contains_checker(vec_collectors_by_camp, id.clone()), "You have been a checker before!"); //check if this account is a checker
         let fee = camp.fund / 10;
         assert_eq!(env::attached_deposit(), fee*ONE_NEAR, "Incorrect tooken");//check if input amount is mess with the amount had been set
-        let mut vec_collectors_by_camp = self.collectors_by_campaign.get(&camp_id).unwrap();
+        let mut vec_collectors_by_camp:Vec<User> = self.collectors_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         vec_collectors_by_camp.push(user);
         let payment_info = EventLog { //info of transaction
                 standard: "e-comerce-1.0.0".to_string(),
@@ -302,15 +310,20 @@ impl Function for Contract {
     }
 
     fn get_checkers_by_campaign(&self, camp_id: CampaignId) -> Vec<User> {
-        self.collectors_by_campaign.get(&camp_id).unwrap()
+        let collectors_by_camp: Vec<User> = self.collectors_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
+        let mut vec_prods: Vec<User> = vec![]; 
+        for i in  collectors_by_camp{
+            vec_prods.push(i);
+        }
+        vec_prods
         
     }
 
-//Product=============================================================
+//Product============================================================= 
     fn new_product(&mut self, name: String, description: String, image: String, total_supply: u32, camp_id: CampaignId) {
         assert!(self.campaign_by_id.contains_key(&camp_id), "Campaign id is not valid!");
         let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
-        let mut vec_prods_by_camp = self.products_by_campaign.get(&camp_id).unwrap();
+        let mut vec_prods_by_camp: Vec<Product> = self.products_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         let total_products = vec_prods_by_camp.len();
         let data = total_products.to_string();
         let hashed_key_str = functions::generate_hash_key(data); // tạo id cho product
