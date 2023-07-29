@@ -5,9 +5,10 @@ import ProgressBar from "../../components/ProgressBar"
 
 import Image from "next/image"
 
-import bg_pj2 from "/public/images/bg_pj.png"
+import buttonRecycle from "/public/images/bt_recycle.svg"
+import buttonDonate from "/public/images/bt_donate.svg"
+import globe from "/public/images/Globe.svg"
 
-const bg_pj = "/images/bg_pj.png";
 import pj_title from "/public/images/pj_title.png"
 
 import {BiSolidStar,BiMap} from "react-icons/bi";
@@ -29,16 +30,26 @@ const IntroSection = () => {
 
     return (
         <div className='flex flex-col'>
-            <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 pt-32 p-8 ">
-                <div className=" flex flex-col "
-                    >
-                    <h1  className={clsx("text-6xl tracking-wide font-bold", amatic_SC.className)}>
-                    PROJECT TITLE
-                    </h1>
-                    <p className={clsx("text-2xl tracking-wide", amatic_SC.className)}>
-                    Insert short description about project
-                    </p>
+            <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-12 shadow-xl rounded-xl">
+                <div className='flex flex-row justify-between'>
+                    <div className=" flex flex-col ">
+                        <h1  className={clsx("text-6xl tracking-wide font-bold", amatic_SC.className)}>
+                        PROJECT TITLE
+                        </h1>
+                        <p className={clsx("text-2xl tracking-wide my-2", amatic_SC.className)}>
+                        Insert short description about project
+                        </p>
+                    </div>
+                    <div>
+                        <Image
+                            src={globe}
+                            alt={"globe"}
+                            layout="responsive"
+                            className="h-1/2"
+                            ></Image>
+                    </div>
                 </div>
+                
                 <div className="flex flex-row justify-center items-start gap-y-8">
                     <div className="grid grid-cols-3 gap-3 w-1/2">
                         <Image
@@ -69,7 +80,7 @@ const IntroSection = () => {
                         className=""
                         ></Image>
                     </div>
-                    <div className="flex flex-col w-1/2 ml-16">
+                    <div className="flex flex-col w-1/2 ml-20">
                         <h1  className={clsx("text-6xl tracking-wide font-bold text-[#73d88b]", amatic_SC.className)}>
                         Date: July 24th 2023                 
                         </h1>
@@ -93,9 +104,11 @@ const IntroSection = () => {
                             </div>
                             <ProgressBar value={progressValue} />
                             <div className='flex flex-row justify-around pt-8'>
-                            <Button href={"/"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Let's Get Started"}></Button>
 
-                            <Button href={"/"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Let's Get Started"}></Button>
+                            {/* <Button href={"/"} classes={"text-white"} content={<Image src={buttonDonate} alt="buttonApply"/>}></Button>   */}
+
+                            <Button href={"/"} classes={"text-white"} content={<Image src={buttonRecycle} alt="buttonApply"/>}></Button>  
+
 
                             </div>
 
@@ -110,11 +123,11 @@ const IntroSection = () => {
 
 const DesciptionSection = () => {
     return (
-        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12  p-8 ">
+        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-8 p-8 ">
             <div className=" flex flex-row justify-between">
                 <div>
                     <h1  className={"text-4xl tracking-wide mb-8"}>
-                        <BiMap/>
+                        <BiMap className='text-[#73d88b] text-6xl'/>
                         District 7, HoChiMinh City                  
                     </h1>
                 </div>

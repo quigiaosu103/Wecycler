@@ -49,7 +49,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="  h-screen items-center flex justify-center">
+      <main className="  h-screen items-center flex justify-center pt-32">
         <form
           onSubmit={formik.handleSubmit}
           className="bg-white flex rounded-lg w-full font-latoRegular"
