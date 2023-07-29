@@ -21,6 +21,7 @@ import {setupMeteorWallet} from '@near-wallet-selector/meteor-wallet'
 import {setupSender} from '@near-wallet-selector/sender'
 import {setupCoin98Wallet} from '@near-wallet-selector/coin98-wallet'
 import {setupHereWallet} from '@near-wallet-selector/here-wallet'
+import { log } from "console";
 
 const THIRTY_TGAS = "30000000000000";
 const NO_DEPOSIT = "0";
@@ -69,7 +70,7 @@ export class Wallet {
     // If user is signed in, update fields, otherwise do nothing
   if (isSignedIn) {
       const accountState = this.walletSelector.store.getState().accounts[0];
-
+      console.log(accountState)
       if (!accountState) {
         return;
       }
