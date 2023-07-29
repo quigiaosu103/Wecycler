@@ -1,7 +1,7 @@
+use near_sdk::Balance;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize};
-use near_sdk::{AccountId, Balance, borsh::BorshSerialize};
-
+use near_sdk::{AccountId, borsh::BorshSerialize};
 use crate::campaign::CampaignId;
 pub type ProductId = String;
 
@@ -23,7 +23,7 @@ pub struct Product {
     pub meta_data: ProductMetaData,
     pub state: State,
     pub collector: AccountId,
-    pub campaign_id: CampaignId
+    pub campaign_id: CampaignId,
 }
 //add quatity(suply)
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Clone, PartialEq)]
@@ -32,6 +32,7 @@ pub struct ProductMetaData {
     pub name: String,
     pub description: String,
     pub image: String,
+    pub reward: Balance
 }
 
 impl Product {
@@ -57,5 +58,9 @@ impl Product {
 
     pub fn set_image(&mut self, src:String) {
         self.meta_data.image = src;
+    }
+
+    pub fn set_reward(&mut self, reward: Balance) {
+        self.meta_data.reward = reward;
     }
 }

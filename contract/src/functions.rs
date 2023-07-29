@@ -51,14 +51,13 @@ pub fn calculate_reward(product: Product, camp: Campaign)->f32 {
     (product.total_supply as f32 / camp.total_products as f32) * camp.fund as f32
 }
 
-// pub fn find_index_prod_unord(&self, id: ProductId)->i32 {
-//     let mut i = 0;
-//     let products = &self.products;
-//     for prd in products{
-//         if prd.1.id == id {
-//             return i;
-//         }
-//         i+=1;
-//     }
-//     -1
-// }
+pub fn contains_checker(vec: Vec<User>, id: AccountId) -> bool {
+        for i in vec {
+            if  i.id == id {
+                return true;
+            }
+        }
+        false
+    }
+
+
