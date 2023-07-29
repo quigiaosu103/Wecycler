@@ -43,12 +43,12 @@ const SearchSection = () => {
     };
 
   return (
-    <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12">
-      <div className="flex flex-col justify-center items-start h-96">
-        <h1  className={clsx("text-3xl tracking-wide font-bold", amatic_SC.className)}>
+    <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-10 border border-2 border-grey rounded-xl">
+      <div className="flex flex-col justify-center items-start">
+        <h1  className={"text-2xl tracking-wide font-bold"}>
           Welcome Báo con
         </h1>
-        <p className={clsx("text-2xl tracking-wide", amatic_SC.className)}>
+        <p className={"text-lg tracking-wide"}>
         Manage your active Campaign from here.        
         </p>
         
