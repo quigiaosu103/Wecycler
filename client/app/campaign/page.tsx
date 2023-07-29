@@ -19,6 +19,9 @@ import CancelMark from "/public/images/CancelMark.png"
 import bg from "/public/images/img65.png"
 import avatar from "/public/images/Avatar.png"
 
+import {BiRocket,BiPlus} from "react-icons/bi";
+
+
 const play = Play({
   subsets: ['latin'],
   weight: ['400', '700']
@@ -59,7 +62,7 @@ const SearchSection = () => {
             </div>
         </div>
       <div className="flex items-center ">
-        <Button href={"/start-form"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Start Campaign"}></Button>  
+        <Button href={"/start-form"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Start Campaign"} icon={<BiPlus/>}></Button>  
 
       </div>
     </div>
@@ -198,7 +201,7 @@ const NewsSection = () => {
               </div>    
           </div>
           <div className="w-full flex justify-center mt-16">
-            <Button href={"/"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"See More Campaign"}></Button>  
+            <Button href={"/over-view"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"See More Campaign"}></Button>  
           </div>
       </div>
           
@@ -298,7 +301,7 @@ const NewsSection = () => {
               </p>
           </div>
           <div className="w-full h-1/2 flex justify-end mt-auto">
-            <Button href={"/"} classes={"text-black bg-white rounded-2xl text-xl border border-2 border-black"} content={"View Rankings"}  ></Button>  
+            <Button href={"/"} classes={"text-black bg-white rounded-2xl text-xl border border-2 border-black"} content={"View Rankings"} icon={<BiRocket/>}></Button>  
           </div>
         </div>
           

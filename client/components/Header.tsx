@@ -7,11 +7,11 @@ interface IHeaderProps {}
 
 const Header = (props: IHeaderProps) => {
   return (
-    <header className="fixed bg-white w-full">
+    <header className="fixed bg-white w-full z-50">
       <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-4 z-50">
         {/* Left */}
         <div className="flex space-x-8 items-center justify-start">
-          <Link href="/" className="flex items-center space-x-2 z-10">
+          <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/images/logo.png"
               width={50}
@@ -29,26 +29,16 @@ const Header = (props: IHeaderProps) => {
         <div className="flex space-x-4 items-center justify-end">
           <nav>
             <ul className="hidden lg:flex items-center justify-between space-x-5 text-[#59EC7A] text-xl font-bold">
-              <Link
-                href="/campaign"
-                className="flex flex-col items-end justify-end group p-3"
-              >
+              <Link href="/campaign" className="flex flex-col items-end justify-end group p-3">
                 <p>Campaign</p>
               </Link>
-              <Link
-                href="/"
-                className="flex flex-col items-end justify-end group p-3"
-              >
+              <Link href="/" className="flex flex-col items-end justify-end group p-3">
                 <p>Collector</p>
               </Link>
-              <Link
-                href="/create"
-                className="flex flex-col items-end justify-end group p-3"
-              >
+              <Link href="/create" className="flex flex-col items-end justify-end group p-3">
                 <p>Create</p>
               </Link>
               <ConnectButton />
-       
             </ul>
           </nav>
         </div>
