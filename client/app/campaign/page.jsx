@@ -15,9 +15,9 @@ import Button from "../../components/Button"
 import Image from "next/image"
 
 import AllMark from "/public/images/AllMark.svg"
-import ActiveMark from "/public/images/ActiveMark.png"
-import  ProgressMark from "/public/images/ProgressMark.png"
-import CancelMark from "/public/images/CancelMark.png"
+import ActiveMark from "/public/images/ActiveMark.svg"
+import ProgressMark from "/public/images/ProgressMark.svg"
+import CancelMark from "/public/images/CancelMark.svg"
 
 import bg from "/public/images/img65.png"
 import avatar from "/public/images/Avatar.png"
@@ -48,7 +48,7 @@ const SearchSection = () => {
     };
 
   return (
-    <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-10 border border-2 border-grey rounded-xl">
+    <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-10 border-2 border-grey rounded-xl">
       <div className="flex flex-col justify-center items-start">
         <h1  className={"text-2xl tracking-wide font-bold"}>
           Welcome Báo con
@@ -67,8 +67,7 @@ const SearchSection = () => {
             </div>
         </div>
       <div className="flex items-center ">
-        <Button href={"/start-form"} classes={"text-white bg-[#59EC7A] rounded-xl"} content={"Start Campaign"} icon={<BiPlus/>}></Button>  
-
+        <Button href={"/create"} classes={"text-white bg-[#174931] rounded-xl"} content={"Start Campaign"} icon={<BiPlus/>}></Button>  
       </div>
     </div>
   )
@@ -118,7 +117,7 @@ const CampaignSection = () => {
                   ></Image>
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{campaignData?.length} </p>
-                    <p className="">All </p>
+                    <p className="font-light">All </p>
                   </div>
                 
             </div>
@@ -131,7 +130,7 @@ const CampaignSection = () => {
                   ></Image>
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{activeCampaignsCount} </p>
-                    <p className="">Active </p>
+                    <p className="font-light">Active </p>
 
                   </div>
                 
@@ -145,7 +144,7 @@ const CampaignSection = () => {
                   ></Image>
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{initCampaignsCount} </p>
-                    <p className="">In Progress</p>
+                    <p className="font-light">In Progress</p>
 
                   </div>
                 
@@ -159,7 +158,7 @@ const CampaignSection = () => {
                   ></Image>
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{doneCampaignsCount} </p>
-                    <p className="">Done </p>
+                    <p className="font-light">Done </p>
 
                   </div>
                 
@@ -220,7 +219,7 @@ const NewsSection = () => {
       <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
   
           <div className="text-[#2bd03b] mb-8">
-              <p className="text-3xl tracking-wide font-bold">
+              <p className="text-3xl tracking-wide font-semibold">
               News
               </p>
           </div>

@@ -13,7 +13,7 @@ const Footer = (props: IFooterProps) => {
                     <span className="flex flex-row space-x-4">
                         <p>Hiển</p>
                         <p>Quí</p>
-                        <p>Phúc</p>
+                        <p>Tiến</p>
                         <p>Hải</p>
                     </span>
                 </div>
