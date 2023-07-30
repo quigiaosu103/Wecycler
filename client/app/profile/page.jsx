@@ -36,7 +36,6 @@ const amatic_SC = Amatic_SC({
 
 const ProfileSection = (userData) => {
 
-    
   return (
     <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-10 border border-2 border-grey rounded-xl">
       <div className="popup-content flex-col min-w-[1000px] min-h-[600px] flex ">

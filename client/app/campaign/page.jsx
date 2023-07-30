@@ -7,7 +7,8 @@ import Search from "@/components/Search";
 
 import ImageCard from "../../components/ImageCard"
 import UserCard from "../../components/UserCard"
-
+import Tab from '../../components/Tabs';
+import TabContent from '../../components/TabsContent';
 
 import clsx from 'clsx'
 import { Play, Amatic_SC } from "@next/font/google"
@@ -74,33 +75,8 @@ const SearchSection = () => {
   )
 }
 
-const CampaignSection = () => {
-  const wallet = useAppSelector(selectWallet);
-  const [campaignData, setCampaignData] = useState(null);
-
-  useEffect(() => {
-    get_a()
-    const savedData = localStorage.getItem("campaignData");
-    if (savedData) {
-      setCampaignData(JSON.parse(savedData));
-    } else {
-      get_campaigns();
-    }
-  }, []);
+const CampaignSection = ( { campaignData }) => {
   
-  const get_a = async () => {
-      wallet?.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_all_campaigns"})
-      .then((data)=>(console.log(data)))
-  };
-
-  const get_campaigns = async () => {
-    const data = await wallet?.viewMethod({
-      contractId: "dev-1690642410974-51262377694618",
-      method: "get_all_campaigns"
-    });
-    localStorage.setItem("campaignData", JSON.stringify(data));
-    setCampaignData(data);
-  };
 
   const activeCampaignsCount = campaignData ? campaignData.filter(campaign => campaign.status === "Active").length : 0;
   const initCampaignsCount = campaignData ? campaignData.filter(campaign => campaign.status === "Init").length : 0;
@@ -160,7 +136,6 @@ const CampaignSection = () => {
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{doneCampaignsCount} </p>
                     <p className="">Done </p>
-
                   </div>
                 
             </div>
@@ -170,20 +145,15 @@ const CampaignSection = () => {
   )
 }
 
-const VolunteSection = () => {
-  const wallet = useAppSelector(selectWallet);
+const VolunteSection = ({ campaignData }) => {
 
-  
-
-  async function getCampaign(){
-    let pop = await wallet.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_all_campaigns", })
-    console.log(pop)
-  }
+  const activeCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Active") : [];
+  const maxDisplayedCampaigns = 3;
 
   return (
     <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
-
         <div className=" flex flex-row mb-8">
+          
             <p className="text-3xl tracking-wide font-bold text-[#2bd03b]">
             3 Active 
             </p>
@@ -191,31 +161,27 @@ const VolunteSection = () => {
         </div>
 
         <div className="flex flex-row justify-between px-16">
-            <div className="">
-                <div>
-                    <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                    description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                </div>
-            </div>
-            <div className="">
-                <div>
-                    <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                    description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                </div>
-            </div>
-            <div className="">
-                <div>
-                    <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                    description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                </div>
-            </div>    
-        </div>
+            {activeCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
+              <div key={campaign.id}>
+                <ImageCard
+                  src={bg}
+                  alt="Image 65"
+                  title={campaign?.meta_data.title}
+                  owner = {campaign.owner}
+                  description={campaign?.meta_data.content}
+                  linkTo={"/over-view"} 
+                  dataToSend={campaign}
+                />
+              </div>
+            ))}
+         </div>
     </div>
-        
   )
 }
 
-const NewsSection = () => {
+const NewsSection = ({ campaignData }) => {
+  const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
+  const maxDisplayedCampaigns = 3;
     return (
       <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
   
@@ -226,24 +192,19 @@ const NewsSection = () => {
           </div>
   
           <div className="flex flex-row justify-between px-16">
-              <div className="">
-                  <div>
-                      <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                      description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                  </div>
+            {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
+              <div key={campaign.id}>
+                <ImageCard
+                  src={bg}
+                  alt="Image 65"
+                  title={campaign?.meta_data.title}
+                  owner = {campaign.owner}
+                  description={campaign?.meta_data.content}
+                  linkTo={"/over-view"}
+                  dataToSend={campaign}
+                />
               </div>
-              <div className="">
-                  <div>
-                      <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                      description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                  </div>
-              </div>
-              <div className="">
-                  <div>
-                      <ImageCard src={bg} alt="Image 65" title={"@better step"} 
-                      description={"Turn your steps into earnings and create your art-filled collection with our Shoe NFTs."} />
-                  </div>
-              </div>    
+            ))}
           </div>
           <div className="w-full flex justify-center mt-16">
             <Button href={"/over-view"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"See More Campaign"}></Button>  
@@ -252,6 +213,51 @@ const NewsSection = () => {
           
     )
   }
+
+  const CollectorSection = ({ campaignData }) => {
+    const wallet = useAppSelector(selectWallet);
+    const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
+    const maxDisplayedCampaigns = 10;
+
+    const apply_collector = (camp_id) => {
+      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",args: {camp_id: camp_id} })
+    };
+
+      return (
+        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
+          <div className="flex flex-col justify-between px-16 space-y-8">
+            {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
+              <div key={campaign.id} className="flex flex-row border border-2 rounded-xl border-[#59ec7a]">
+                <div className="flex justify-center items-center  w-2/5">
+                  <Image
+                    src={bg}
+                    alt={"image"}
+                    className="w-1/2 h-1/2 "
+                    >
+                  </Image>
+                </div>
+                
+                <div className="flex flex-col w-2/5">
+                  <p className="text-2xl">{campaign?.meta_data.title}</p>
+                  <p className="text-lg">Pool: {campaign?.fund}</p>
+                </div>
+                <div className="flex w-1/5 justify-center items-center">
+                {/* <Button href={"/"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"Aply collector"}></Button>   */}
+                  <button      
+                    onClick={apply_collector(campaign.id)}
+                  >
+                    Apply collector
+                  </button>
+                </div>
+                
+              </div>
+            ))}
+          </div>
+            
+        </div>
+            
+      )
+    }
 
   const TableSection = () => {
     return (
@@ -333,7 +339,6 @@ const NewsSection = () => {
   }
 
   const TopSection = () => {
-    const rocketIcon = <i className="fas fa-rocket"></i>;
     return (
       <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
         <div className="flex flex-row">
@@ -399,13 +404,59 @@ const NewsSection = () => {
   }
 
 export default function Home() {
+  const wallet = useAppSelector(selectWallet);
+
+  const [campaignData, setCampaignData] = useState(null);
+
+  useEffect(() => {
+    // const savedData = localStorage.getItem("campaignData");
+    // if (savedData) {
+    //   setCampaignData(JSON.parse(savedData));
+    // } else {
+      
+    // }
+    get_campaigns();
+  }, []);
+  
+
+  const get_campaigns = async () => {
+    const data = await wallet?.viewMethod({
+      contractId: "dev-1690642410974-51262377694618",
+      method: "get_all_campaigns"
+    });
+    //localStorage.setItem("campaignData", JSON.stringify(data));
+    setCampaignData(data);
+  };
+
+  const [activeTab, setActiveTab] = useState('User');
+
+  const handleTabClick = (tabLabel) => {
+    setActiveTab(tabLabel);
+  };
+
   return (
     <main>
       <div className={clsx("flex flex-col", play.className)}>
         <SearchSection/>
-        <CampaignSection/>
-        <VolunteSection/>
-        <NewsSection/>
+        <CampaignSection campaignData={campaignData}/>
+        <div className="flex space-x-4 ml-36">
+          <Tab label="User" activeTab={activeTab} onClick={handleTabClick} />
+          <Tab label="Collector" activeTab={activeTab} onClick={handleTabClick} />
+        </div>
+        <div>
+          <TabContent label="User" activeTab={activeTab}>
+            {/* User Section */}
+            <VolunteSection campaignData={campaignData}/>
+            <NewsSection campaignData={campaignData}/>
+          </TabContent>
+          <TabContent label="Collector" activeTab={activeTab}>
+            {/* Collector Section */}
+            <CollectorSection campaignData={campaignData}/>
+          </TabContent>          
+        </div>
+        
+        
+        
         <TableSection/>   
         <TopSection/>
 

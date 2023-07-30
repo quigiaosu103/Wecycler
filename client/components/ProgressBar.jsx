@@ -1,10 +1,10 @@
 import React from "react";
 
-const ProgressBar = ({ value }) => {
+const ProgressBar = ({ value , max}) => {
   return (
     <progress className="w-full h-1 bg-gray-200 rounded-xl" 
     value={value} 
-    max="100">
+    max={max}>
       {value}%
     </progress>
   );
