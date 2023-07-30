@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/ImageCard.jsx", "app/ConnectButton.jsx", "app/campaign/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/ImageCard.jsx", "app/ConnectButton.jsx", "app/campaign/page.jsx", "app/over-view/page.jsx", "app/profile/page.jsx"],
   "exclude": ["node_modules"]
 }

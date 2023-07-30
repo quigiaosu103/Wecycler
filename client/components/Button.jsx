@@ -1,10 +1,10 @@
 import Link from "next/link";
 import clsx from 'clsx'
 
-const Button = ({content, classes, href, icon=null}) => {
+const Button = ({content, classes, href, dataToSend=null, icon=null}) => {
   return (
     <Link 
-      href={href}
+      href={{pathname : href, query:{data: JSON.stringify(dataToSend)}}}
       className={clsx(classes,  "py-3 px-6", "flex items-center justify-center")}
     >
       {icon && (

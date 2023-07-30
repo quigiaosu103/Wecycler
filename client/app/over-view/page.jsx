@@ -1,13 +1,20 @@
+'use client';
 import clsx from 'clsx'
 import { Play, Amatic_SC } from "@next/font/google"
+import { redirect, useSearchParams  } from "next/navigation";
+import { useAppSelector } from "@/context/store";
+import { selectWallet } from "@/features/walletSlice";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 import Button from "../../components/Button"
 import ProgressBar from "../../components/ProgressBar"
-
 import Image from "next/image"
 
 import buttonRecycle from "/public/images/bt_recycle.svg"
 import buttonDonate from "/public/images/bt_donate.svg"
 import globe from "/public/images/Globe.svg"
+import coin from "/public/images/coin.svg"
 
 import pj_title from "/public/images/pj_title.png"
 
@@ -23,10 +30,75 @@ const amatic_SC = Amatic_SC({
   weight: ['400', '700']
 })
 
+const IntroSection = ({ parsedData }) => {
+    const dateObject = new Date(parsedData.deadline);
+    const startDateObject = new Date(parsedData.init_time);
+    const wallet = useAppSelector(selectWallet);
+    const router = useRouter()
 
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const txhash = urlParams.get("transactionHashes")
 
-const IntroSection = () => {
-    const progressValue = 50;
+        if(txhash) {
+            if(parsedData.status == "Active"){
+                parsedData.status = "Done"
+                router.replace("/over-view?data=" + JSON.stringify(parsedData))
+            }
+
+            if(parsedData.status == "Init"){
+                parsedData.status = "Active"
+                router.replace("/over-view?data=" + JSON.stringify(parsedData))
+            }
+        }
+    }, [])
+
+    const getDayWithOrdinalSuffix = (day) => {
+        const suffixes = ["st", "nd", "rd"];
+        const specialCases = [11, 12, 13]; // 11th, 12th, 13th are exceptions
+      
+        const digit = day % 10;
+        const suffix = suffixes[digit - 1] || "th";
+      
+        if (specialCases.includes(day)) {
+          return day + "th";
+        }
+      
+        return day + suffix;
+      };
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+    const getDaysLeft = (startDate, endDate) => {
+        // Parse the date strings to Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+      
+        // Calculate the difference between the dates in milliseconds
+        const difference = end.getTime() - start.getTime();
+      
+        // Convert the difference to days
+        const daysLeft = Math.ceil(difference / (1000 * 60 * 60 * 24));
+      
+        return daysLeft;
+    };
+
+    // Get the day (1-31)
+    const day = dateObject.getDate();
+
+        // Get the month (0-11). Note: January is 0, February is 1, and so on.
+    const monthIndex = dateObject.getMonth();
+    const monthName = monthNames[monthIndex];
+        // Get the year (4 digits)
+    const year = dateObject.getFullYear();
+    
+    const updateStatus = async () => {
+
+        await wallet.callMethod({contractId: "dev-1690642410974-51262377694618", method: "set_camp_status", args: {status: "Active", camp_id: parsedData?.id}})
+    }
 
     return (
         <div className='flex flex-col'>
@@ -34,10 +106,10 @@ const IntroSection = () => {
                 <div className='flex flex-row justify-between'>
                     <div className=" flex flex-col ">
                         <h1  className={clsx("text-6xl tracking-wide font-bold", amatic_SC.className)}>
-                        PROJECT TITLE
+                            {parsedData?.meta_data.title}
                         </h1>
                         <p className={clsx("text-2xl tracking-wide my-2", amatic_SC.className)}>
-                        Insert short description about project
+                        {parsedData?.owner}                        
                         </p>
                     </div>
                     <div>
@@ -82,27 +154,38 @@ const IntroSection = () => {
                     </div>
                     <div className="flex flex-col w-1/2 ml-20">
                         <h1  className={clsx("text-6xl tracking-wide font-bold text-[#73d88b]", amatic_SC.className)}>
-                        Date: July 24th 2023                 
+                        Date: {monthName} {getDayWithOrdinalSuffix(day)} {year}            
                         </h1>
                         <p className='text-2xl tracking-wide '>
-                            30 day left
+                            {getDaysLeft(startDateObject,dateObject)} day left
                         </p>
-                        <p className=''>
-                            Recycles: 50
+                        <div className="flex space-x-3">
+                            <p className=''>
+                                Status: {parsedData?.status}
+                            </p>
+                            {wallet?.accountId === parsedData?.owner && (parsedData?.status == "Init" || parsedData?.status == "Active")  && (<button onClick={updateStatus} className="border-2 bg-[#FFE500] border-black rounded-lg px-3">Update</button>)}
+                        </div>
+                        <div className='flex flex-row'>
+                            <Image
+                            src={coin}
+                            alt={"coin"}>
+                            </Image>
+                            <p className='text-2xl tracking-wide'>
+
+                            {parsedData?.fund}
                         </p>
-                        <p className=''>
-                            1000
-                        </p>
+                        </div>
+                        
                         <div className='pt-8'>
                             <div className='flex flex-row justify-between'>
                                 <p>
                                     Goal
                                 </p>
                                 <p>
-                                    {progressValue}/100
+                                    {parsedData?.total_products}/{parsedData?.total_products_expected}
                                 </p>
                             </div>
-                            <ProgressBar value={progressValue} />
+                            <ProgressBar value={parsedData?.total_products} max={parsedData?.total_products_expected}/>
                             <div className='flex flex-row justify-around pt-8'>
 
                             {/* <Button href={"/"} classes={"text-white"} content={<Image src={buttonDonate} alt="buttonApply"/>}></Button>   */}
@@ -121,7 +204,7 @@ const IntroSection = () => {
     )
 }
 
-const DesciptionSection = () => {
+const DesciptionSection = ({parsedData}) => {
     return (
         <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-8 p-8 ">
             <div className=" flex flex-row justify-between">
@@ -149,16 +232,7 @@ const DesciptionSection = () => {
             </div>
             <div>
                 <p className='text-justify'>
-                17-year-old Hoang Mai is a proud contributor to Vietnam’s Youth Union volunteer campaign. In a run-up to World Environment Day and its global theme, “Only One Earth” on June 5, she will connect with millions of other young citizens who are taking action to clean up the environment. The Youth Union has focused increasing attention on environmental protection through tree planting and eco-campaigns like “for a green Vietnam,” “let’s clean up the seas,” and “anti-plastic waste,” and recently marked the start of its ‘Green Summer’ campaign.
-                <br />
-
-In 1986 the Vietnam Communist Party adopted economic reforms or “doi moi.” It was the Youth Union, joined by international non-profit organizations like the United Nations Volunteers (UNV), that also mobilized nation-building efforts. In December 2021, UNESCO in Vietnam and the Communist Youth Union also signed a letter of understanding for the period of 2021 to 2025. This is a milestone for the strategic and close cooperation between the two organizations since they share common ground in promoting student engagement with their communities. <br />
-Dr. Le Thu Mach, a lecturer at Ho Chi Minh National Academy of Politics, recalls her social work volunteerism twenty years ago in Sapa, in the Lao Cai province, where the Vietnam Youth Federation awarded her a national certificate of merit. She says, “today student volunteerism is all year round, not just in the summer and it is community-based.”
-While some non-state actors in the form of non-government organizations (NGOs) in Vietnam continue to face challenges, there’s no turning back the actions and voices of community-based youth volunteers since they are future agents for a changing environment. <br />
-
-NGOs like PanNature continue to be engaged in World Environment Day by planting trees in Van Ho Commune in Son La, where the population of Northern white-cheeked gibbon lives and the endangered rare Northern white-cheeked gibbon. This volunteer activity is part of a long-term plan to restore 630 hectares of forest and conserve the rare Gibbon species. “While we do not have any formal partnership with the National Youth Union, we do work with the local Youth Union through capacity building and other initiatives says executive director Trinh Le Nguyen. <br />
-
-The government’s national directive about the importance of conservation and sustainability of the environment is reflected in the Ministry of Natural Resources and Environment’s (MONRE) upcoming June 4 environmental awards program to organizations, individuals, and communities with excellent performances in environmental protection.
+                {parsedData?.meta_data.content}
                 </p>
             </div>
         </div>
@@ -167,13 +241,15 @@ The government’s national directive about the importance of conservation and s
   }
   
 
-
 export default function Home() {
+    const searchParams = useSearchParams()
+    const data = searchParams.get("data")
+    const parsedData = JSON.parse(data);
   return (
     <main>
       <div className={clsx("flex flex-col", play.className)}>
-        <IntroSection/>
-        <DesciptionSection/>
+        <IntroSection parsedData={parsedData}/>
+        <DesciptionSection parsedData={parsedData}/>
 
       </div>
     </main>
