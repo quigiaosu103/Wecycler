@@ -126,6 +126,7 @@ export class Wallet {
     method: string;
     args?: Record<string, unknown>;
   }) {
+
     if (!this.walletSelector) {
       throw new Error(
         "Wallet selector not initialized by running startUp() first"

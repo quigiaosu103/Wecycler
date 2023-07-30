@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Play, Amatic_SC } from "@next/font/google"
+import { Play, Amatic_SC } from "next/font/google"
 import Button from "../components/Button"
 import Image from "next/image"
 

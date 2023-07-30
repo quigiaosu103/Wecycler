@@ -56,4 +56,4 @@ function ConnectWalletButton() {
   );
 }
 
-export default memo(ConnectWalletButton);
+export default ConnectWalletButton;

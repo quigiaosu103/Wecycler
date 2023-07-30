@@ -10,7 +10,6 @@ import crump from "/public/images/crumpled.png"
 import group from "/public/images/Group 175.png"
 import background from "/public/images/OBJECTS.png"
 
-
 import buttonRegister from "/public/images/buttonRegister.png"
 
 const play = Play({
