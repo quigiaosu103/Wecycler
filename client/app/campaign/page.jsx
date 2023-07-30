@@ -1,5 +1,8 @@
 'use client';
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import { useAppSelector } from "@/context/store";
+import { selectWallet } from "@/features/walletSlice";
+
 import Search from "@/components/Search";
 
 import ImageCard from "../../components/ImageCard"
@@ -20,6 +23,8 @@ import bg from "/public/images/img65.png"
 import avatar from "/public/images/Avatar.png"
 
 import {BiRocket,BiPlus} from "react-icons/bi";
+// import { Wallet } from "@near-wallet-selector/core";
+// import { Wallet } from "@/utils/near-wallet";
 
 
 const play = Play({
@@ -36,7 +41,7 @@ const SearchSection = () => {
 
     const [searchValue, setSearchValue] = useState('');
 
-    const handleSearch = (value: string) => {
+    const handleSearch = (value) => {
         // Here, you can access the search value when Enter is pressed
         console.log(value);
         setSearchValue(value);
@@ -70,6 +75,38 @@ const SearchSection = () => {
 }
 
 const CampaignSection = () => {
+  const wallet = useAppSelector(selectWallet);
+  const [campaignData, setCampaignData] = useState(null);
+
+  useEffect(() => {
+    get_a()
+    const savedData = localStorage.getItem("campaignData");
+    if (savedData) {
+      setCampaignData(JSON.parse(savedData));
+    } else {
+      get_campaigns();
+    }
+  }, []);
+  
+  const get_a = async () => {
+      wallet?.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_all_campaigns"})
+      .then((data)=>(console.log(data)))
+  };
+
+  const get_campaigns = async () => {
+    const data = await wallet?.viewMethod({
+      contractId: "dev-1690642410974-51262377694618",
+      method: "get_all_campaigns"
+    });
+    localStorage.setItem("campaignData", JSON.stringify(data));
+    setCampaignData(data);
+  };
+
+  const activeCampaignsCount = campaignData ? campaignData.filter(campaign => campaign.status === "Active").length : 0;
+  const initCampaignsCount = campaignData ? campaignData.filter(campaign => campaign.status === "Init").length : 0;
+  const doneCampaignsCount = campaignData ? campaignData.filter(campaign => campaign.status === "Done").length : 0;
+
+
   return (
     <div className="flex flex-col justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
         <div className="grid grid-cols-4 gap-8 ">
@@ -80,9 +117,8 @@ const CampaignSection = () => {
                   className="h-1/2 mx-6"
                   ></Image>
                   <div className="flex flex-col">
-                    <p className="text-2xl tracking-wide font-bold">500 </p>
+                    <p className="text-2xl tracking-wide font-bold">{campaignData?.length} </p>
                     <p className="">All </p>
-
                   </div>
                 
             </div>
@@ -94,7 +130,7 @@ const CampaignSection = () => {
                   className="h-1/2 mx-6"
                   ></Image>
                   <div className="flex flex-col">
-                    <p className="text-2xl tracking-wide font-bold">100 </p>
+                    <p className="text-2xl tracking-wide font-bold">{activeCampaignsCount} </p>
                     <p className="">Active </p>
 
                   </div>
@@ -108,7 +144,7 @@ const CampaignSection = () => {
                   className="h-1/2 mx-6"
                   ></Image>
                   <div className="flex flex-col">
-                    <p className="text-2xl tracking-wide font-bold">200 </p>
+                    <p className="text-2xl tracking-wide font-bold">{initCampaignsCount} </p>
                     <p className="">In Progress</p>
 
                   </div>
@@ -122,8 +158,8 @@ const CampaignSection = () => {
                   className="h-1/2 mx-6"
                   ></Image>
                   <div className="flex flex-col">
-                    <p className="text-2xl tracking-wide font-bold">89 </p>
-                    <p className="">Canceled </p>
+                    <p className="text-2xl tracking-wide font-bold">{doneCampaignsCount} </p>
+                    <p className="">Done </p>
 
                   </div>
                 
@@ -135,6 +171,15 @@ const CampaignSection = () => {
 }
 
 const VolunteSection = () => {
+  const wallet = useAppSelector(selectWallet);
+
+  
+
+  async function getCampaign(){
+    let pop = await wallet.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_all_campaigns", })
+    console.log(pop)
+  }
+
   return (
     <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
 
