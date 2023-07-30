@@ -37,20 +37,20 @@ pub trait Function {
     fn update_user(&mut self, name: String, email_address: String, image: String); // cập nhật thông tin user
     fn new_collector(&mut self) -> User; //tạo collector mới
     fn get_checkers_by_campaign(&self, camp_id: CampaignId) -> Vec<User>; //lấy thông tin của tất cả collector của 1 chiến dịch
-    fn return_collector_fee(&self, cammp_id: CampaignId); // trả lại cho collector lượng phí mà họ đã bỏ ra khi tham gia vào chiến dịch
+    fn return_collector_stake(&mut self, cammp_id: CampaignId); // trả lại cho collector lượng phí mà họ đã bỏ ra khi tham gia vào chiến dịch
 
     fn new_campaign(&mut self, id: CampaignId, fund: Balance, title: String,content :String, image: String, amount: u32, total_checkers: u32, init_time: u64, deadline: u64) -> Campaign;// tạo chiến dịch mới
     fn get_campaign_by_id(&self, id: CampaignId)->Campaign; // lấy thông tin của 1 chiến dịch
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId)-> Campaign; // dành cho owner của chiến dịch để thay đổi trạng thái của chiến dịch
     fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign); // cập nhật chiến dịch vào contract
     fn get_all_campaigns(&self) -> Vec<Campaign>; // lấy thông tin cua tất cả chiến dịch
+    fn update_total_prds_camp(&mut self, camp_id: CampaignId);// cập nhật tổng số sản phẩm người dùng đã đóng góp vào chiến dịch
 
     fn new_product(&mut self, name: String, description: String, image: String, total_supply: u32, camp_id: CampaignId); // tạo product mưới
     fn set_state_product(&mut self, id: ProductId, camp_id: CampaignId, is_valid: bool); // collector và owner của chiến dịch sẽ dùng để validate cho sản phẩm
     fn get_product_by_id(&self, id: ProductId)-> Product; // lấy thông tin của một sản phẩm
     fn update_product_data(&mut self, product: Product, key: &String, camp_id: CampaignId); // cập nhật thay đổi của sản phẩm vào contract
     fn get_products_by_campaign(&self, id: CampaignId)-> Vec<Product>; // lấy ra tất cả product của 1 chiến dịchn
-    // fn payment(&mut self, product_id : ProductId) -> Promise;  
     fn apply_collector_in_camp(&mut self, camp_id: CampaignId); // collector sẽ bỏ một lượng phí để tham gia vào chiến dịch
     fn distribute_reward(&mut self, camp_id: CampaignId); // chia pool ra cho tất cả các users và collectors có đóng góp vào chiến dịch
     fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise; // thực hiện giao dịch
@@ -86,14 +86,11 @@ impl Function for Contract {
     }
 
 
-    fn check_new_user(&self, id: AccountId)-> bool { //check whether this id is already existed
-
-
+    fn check_new_user(&self, id: AccountId)-> bool {
         self.user_by_id.contains_key(&id)
-        
     }
 
-    fn new_user(&mut self) ->User{ //call after check whether it is the first time this account connected
+    fn new_user(&mut self) ->User{ 
         let id = env::signer_account_id();
         let user = User {
             id: id.clone(),
@@ -178,7 +175,6 @@ impl Function for Contract {
         vec_camps
     }
 
-
     fn get_products_by_campaign(&self, id: CampaignId) -> Vec<Product> {
         let prods_by_camp: Vec<Product> = self.products_by_campaign.get(&id).unwrap_or_else(||Vec::new());
         let mut vec_prods: Vec<Product> = vec![]; 
@@ -207,18 +203,19 @@ impl Function for Contract {
             }])
         };
         //add new checker into checkers of this campaign
-        env::log_str(&payment_info.to_string());    
+        env::log_str(&payment_info.to_string());   
         Promise::new(id).transfer(amount)
     }
 
     fn distribute_reward(&mut self, camp_id: CampaignId) {
+        self.update_total_prds_camp(camp_id.clone());
         let camp = self.campaign_by_id.get(&camp_id).unwrap();
-        assert_eq!(camp.status, Status::Done, "The reward had been distributed!");
-        assert_eq!(camp.status, Status::End, "Campaign have not been ended!");
+        assert_eq!(camp.status, Status::Done, "Campaign have not been finised!");
         assert_eq!(camp.owner, env::signer_account_id(), "You are not owner of this campaign!");
         let products = self.products_by_campaign.get(&camp_id).unwrap(); 
-        for mut i in products {
-            let reward = functions::calculate_reward(i.clone(), camp.clone()); // tính toán phần thưởng của từng sản phẩm dựa trên số lượng đóng góp/tổng số lượng
+        for mut i in products.clone() {
+            let reward = (i.total_supply as f32 / camp.total_products as f32) * camp.fund as f32;// tính toán phần thưởng của từng sản phẩm dựa trên số lượng đóng góp/tổng số lượng
+            // let reward = functions::calculate_reward(i.clone(), camp.clone()); 
             self.send_reward(i.owner.clone(), (reward * 0.8 *  (ONE_NEAR as f32)) as u128); //owner của product sẽ được 80%
             self.send_reward(i.collector.clone(), (reward * 0.2 *  (ONE_NEAR as f32)) as u128); //collector của product đó sẽ được 20%
             i.set_reward(reward as u128); // cập nhật phần thưởng của sản phẩm
@@ -227,24 +224,32 @@ impl Function for Contract {
             }
             self.new_transaction_product.insert(&0, &i);
         }
-        
-        self.set_camp_status(Status::Done, camp_id);
     }
 
-    fn return_collector_fee(&self, camp_id: CampaignId) {
+    fn update_total_prds_camp(&mut self, camp_id: CampaignId) {
+        let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        let vec_prods = self.products_by_campaign.get(&camp_id).unwrap();
+        let mut new_total = 0;
+        for i in vec_prods {
+            new_total += i.total_supply;
+        }
+        camp.total_products = new_total;
+        self.update_camp_data(camp_id, &mut camp);
+    }
+
+    fn return_collector_stake(&mut self, camp_id: CampaignId) {
         let camp = self.campaign_by_id.get(&camp_id).unwrap();
-        assert_eq!(camp.status, Status::Done, "The reward had been distributed!");
-        assert_eq!(camp.status, Status::End, "Campaign have not been ended!");
+        assert_eq!(camp.status, Status::Done, "The campign had not been finished!");
         assert_eq!(camp.owner, env::signer_account_id(), "You are not owner of this campaign!");
         let collectors = self.collectors_by_campaign.get(&camp_id).unwrap();
-        let return_token = camp.fund / 10;
+        let return_token = (camp.fund / 10) * ONE_NEAR;
         for i in collectors {
-            Promise::new(i.id).transfer(return_token as u128);
+            // Promise::new(i.id).transfer(return_token as u128);
+            self.send_reward(i.id, return_token);
         }
     }
 
 //Collector==========================================================
-
     fn new_collector(&mut self) -> User {
         let mut new_producer = self.get_user_by_id(env::signer_account_id());
         assert_ne!(new_producer.role, Role::Collector, "You had been a collector already!");
@@ -295,18 +300,18 @@ impl Function for Contract {
             if env::signer_account_id() != camp.owner {
                 assert!(functions::contains_checker(vec_collectors_by_camp, env::signer_account_id()), "you are not a checker in this campaign");
                 product.state = State::Validated;
+                vec_prods_by_camp.insert(index as usize, product.clone());
             }else {
                 product.state = State::Confirmed;
                 vec_prods_by_camp.insert(index as usize, product.clone());
                 self.update_camp_data(camp_id.clone(), &mut camp);
             }   
-            //if valid: set state and insert into this campaign
-            vec_prods_by_camp.insert(index as usize, product.clone());
         }
         //save new data of product
         self.products_by_campaign.insert(&camp_id, &vec_prods_by_camp);
         self.product_by_id.insert(&id, &product);
-        self.update_camp_data(camp_id, &mut camp);
+        self.update_camp_data(camp_id.clone(), &mut camp);
+        self.update_total_prds_camp(camp_id);
     }
 
     fn get_checkers_by_campaign(&self, camp_id: CampaignId) -> Vec<User> {
@@ -345,7 +350,8 @@ impl Function for Contract {
         self.product_by_id.insert(&product.id, &product); //cập nhật product mới vào contract
         vec_prods_by_camp.push(product);
         self.products_by_campaign.insert(&camp_id, &vec_prods_by_camp);
-        self.update_camp_data(camp_id, &mut camp);
+        self.update_camp_data(camp_id.clone(), &mut camp);
+        self.update_total_prds_camp(camp_id);
     }
     
     fn update_product_data(&mut self, product: Product, key: &String, camp_id: CampaignId) {
@@ -355,8 +361,6 @@ impl Function for Contract {
         prods.insert(id as usize, product.clone());
         self.products_by_campaign.insert(&camp_id, &prods);
         self.product_by_id.insert(key, &product);
-
-        
     }
     
     fn update_camp_data(&mut self, camp_id: CampaignId, camp: &mut Campaign) {
@@ -369,5 +373,4 @@ impl Function for Contract {
     fn get_product_by_id(&self, id: ProductId)-> Product {
         self.product_by_id.get(&id).unwrap()
     }
-
 }
