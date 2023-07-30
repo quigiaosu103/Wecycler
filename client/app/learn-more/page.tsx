@@ -7,8 +7,9 @@ import rightImage from "/public/images/page2.png"
 import road from "/public/images/road.png"
 import hand from "/public/images/hand.png"
 import crump from "/public/images/crumpled.png"
-import group from "/public/images/Group 175.png"
+import group from "/public/images/Group 175.svg"
 import background from "/public/images/OBJECTS.png"
+import arrow2 from "/public/images/arrow2.svg"
 
 import buttonRegister from "/public/images/buttonRegister.png"
 
@@ -62,9 +63,17 @@ const CampaignSection = () => {
       
 
       <div className="flex flex-col w-1/2 justify-start h-screen gap-y-8 z-20 ">
-        <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)} >
-        Attend Campaigns
-        </h1>
+        <div className='flex flex-row'>
+          <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)} >
+          Attend Campaigns
+          </h1>
+          <Image
+            src={arrow2}
+            alt={"image"}
+            className="pl-8"
+          ></Image>
+        </div>
+        
         <p className={clsx("text-2xl tracking-wide font-bold", amatic_SC.className)}>
         While its important to tell everyone about recyclcling, we also need to show them how it is done. Join us as we pick up papers and plastics around communities. This can be done individually or with the team. 
         </p>
@@ -78,12 +87,13 @@ const CampaignSection = () => {
 const VolunteSection = () => {
   return (
     <div className="flex flex-col  text-black max-w-[1440px] mx-auto lg:w-10/12 py-10">
-      <div className="topBlock flex flex-row justify-center space-x-20">
+      <div className="topBlock flex flex-row justify-center space-x-20 ">
         <div className="blockLeft w-1/2 flex flex-col items-center bg-[#73d88b] ">
           <p className={clsx("text-6xl tracking-wide font-bold m-8", amatic_SC.className)}>"Community development"</p>
           <p className={clsx("text-2xl tracking-wide font-bold m-8", amatic_SC.className)}>"As a community development volunteer, you'll join our charity and give your time to disadvantaged communities to help distribute food, shelter and clothing and provide education. As you can imagine, this type of volunteering is one of the most challenging and diverse, while also being extremely rewarding."</p>
+          
         </div>
-        <div className="blockRight w-1/2 flex items-end">
+        <div className="blockRight w-1/2 flex items-end pl-20">
         <Image
           src={hand}
           alt={"image"}
@@ -107,11 +117,19 @@ const Volunte2Section = () => {
         ></Image>
         <p className={clsx(amatic_SC.className, "text-4xl font-bold mt-6")}>collector of the month</p>
         </div>
-      <div className="left flex flex-col w-1/2 items-start h-screen gap-y-8">
+      <div className="left flex flex-col w-1/2 items-start h-screen gap-y-8 mx-8">
+        <div className='flex flex-row'>
           <h1 className={clsx("text-8xl tracking-wide font-bold", amatic_SC.className)}>
             volunteering
           </h1>
-          <p className="text-lg font-light">
+          <Image
+            src={arrow2}
+            alt={"image"}
+            className="pl-8"
+          ></Image>
+        </div>
+          
+          <p className="text-lg font-light text-justify ">
           Our Collector are passionate about saving the earth and contributing to a sustainable environment. Through our exciting volunteer activities and programs you will get to work the talk by attending recycling campaigns and being a recycle advocate and educator. Join us to “work the talk” when you apply to be part of the Reuse Volunteer team.           </p>
         </div>
       

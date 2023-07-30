@@ -23,6 +23,7 @@ pub struct  UserMetaData {
     pub name: String,
     pub email_address: String,
     pub balance: Balance,
+    pub image:String
 }
 
 impl User {
@@ -36,6 +37,10 @@ impl User {
 
     pub fn set_balance(&mut self, balance: Balance) {
         self.meta_data.balance = balance;
+    }
+
+    pub fn set_image(&mut self, image: String) {
+        self.meta_data.image = image;
     }
 
     pub fn get_name(&self) -> String {

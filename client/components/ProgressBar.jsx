@@ -2,7 +2,7 @@ import React from "react";
 
 const ProgressBar = ({ value }) => {
   return (
-    <progress className="w-full h-2 bg-gray-200 rounded-lg" 
+    <progress className="w-full h-1 bg-gray-200 rounded-xl" 
     value={value} 
     max="100">
       {value}%
