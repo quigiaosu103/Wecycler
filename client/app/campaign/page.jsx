@@ -15,7 +15,7 @@ import { Play, Amatic_SC } from "@next/font/google"
 import Button from "../../components/Button"
 import Image from "next/image"
 
-import AllMark from "/public/images/AllMark.png"
+import AllMark from "/public/images/AllMark.svg"
 import ActiveMark from "/public/images/ActiveMark.png"
 import  ProgressMark from "/public/images/ProgressMark.png"
 import CancelMark from "/public/images/CancelMark.png"
