@@ -219,9 +219,37 @@ const NewsSection = ({ campaignData }) => {
     const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
     const maxDisplayedCampaigns = 10;
 
-    const apply_collector = (camp_id) => {
-      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",args: {camp_id: camp_id} })
+    const [userData, setUserData] = useState(null);
+
+    const fetchData = async () => {
+      try {
+        const getUserResponse = await wallet.viewMethod({
+          contractId: "dev-1690642410974-51262377694618",
+          method: "get_user_by_id",
+          args: { id: wallet.accountId }
+        });
+  
+        setUserData(getUserResponse);
+        
+      } catch (error) {
+        console.log("Error fetching data:");
+      }
     };
+    
+  
+
+    const change_role = async(camp) =>{
+      await fetchData();
+
+      if(userData?.role!=="Collector")
+      {
+        wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
+      }
+      const peposit = camp?.fund+'00000000000000000000000'
+
+      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: peposit,args: {camp_id: camp?.id} })
+    }
+    
 
       return (
         <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
@@ -244,7 +272,7 @@ const NewsSection = ({ campaignData }) => {
                 <div className="flex w-1/5 justify-center items-center">
                 {/* <Button href={"/"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"Aply collector"}></Button>   */}
                   <button      
-                    onClick={apply_collector(campaign.id)}
+                    onClick={() =>{ change_role(campaign)}}
                   >
                     Apply collector
                   </button>
@@ -405,7 +433,6 @@ const NewsSection = ({ campaignData }) => {
 
 export default function Home() {
   const wallet = useAppSelector(selectWallet);
-
   const [campaignData, setCampaignData] = useState(null);
 
   useEffect(() => {
@@ -418,6 +445,7 @@ export default function Home() {
     get_campaigns();
   }, []);
   
+  
 
   const get_campaigns = async () => {
     const data = await wallet?.viewMethod({
@@ -429,6 +457,7 @@ export default function Home() {
   };
 
   const [activeTab, setActiveTab] = useState('User');
+  
 
   const handleTabClick = (tabLabel) => {
     setActiveTab(tabLabel);
