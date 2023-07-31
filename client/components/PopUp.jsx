@@ -6,6 +6,7 @@ import { selectWallet } from "@/features/walletSlice";
 
 const Popup = ({ isOpen, onClose, signOut, userData }) => {
   const wallet = useAppSelector(selectWallet);
+  
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
   const [isEditing, setIsEditing] = useState(false);

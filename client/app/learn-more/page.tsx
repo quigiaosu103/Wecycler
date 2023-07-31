@@ -11,7 +11,6 @@ import group from "/public/images/Group 175.svg"
 import background from "/public/images/OBJECTS.png"
 import arrow2 from "/public/images/arrow2.svg"
 
-
 import buttonRegister from "/public/images/buttonRegister.png"
 
 const play = Play({

@@ -93,11 +93,18 @@ Owner of campaign change campaign's status:
 near call dev-1690642410974-51262377694618 set_camp_status '{"status": new_status,""camp_id": id_of_campaign}"  --accountId your_account_id 
 ```
 
+<<<<<<< HEAD
 
 Add product to a campaign:
 ```bash
 # Add product
 near call dev-1690642410974-51262377694618 new_product '{"name": "product_name","description": "your products description","image": "link of image", "total_supply": 8, "camp_id": "daylanewid"}' --accountId your_accountId
+=======
+Add product to a campaign:
+```bash
+# Add product
+near call dev-1690642410974-51262377694618 new_product '{"name": product_name,"description": your products description,"image": link of image, "total_supply": amount of product, "camp_id": id_of_campaign}' --accountId your_accountId
+>>>>>>> 185f2dd3d6e10dac6a6daaf674eecfc39d0c72b2
 ```
 
 Collector validate product:
@@ -136,7 +143,11 @@ and then use the logged account to sign the transaction: `--accountId <your-acco
 f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //near call dev-1690642410974-51262377694618 apply_collector_in_camp {"camp_id": "daylanewid"}'  --accountId quivok8t.testnet
 =======
 //:
 >>>>>>> 9066ebf386070bef296087a0ed8d9e345819b4eb
+=======
+//:
+>>>>>>> 185f2dd3d6e10dac6a6daaf674eecfc39d0c72b2

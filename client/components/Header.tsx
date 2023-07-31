@@ -1,14 +1,44 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import { CiSearch } from "react-icons/ci";
 import ConnectButton from "../app/ConnectButton";
+import { useState, useEffect } from "react";
+import clsx from "clsx";
 
 interface IHeaderProps {}
 
 const Header = (props: IHeaderProps) => {
+
+  const [isShow, setIsShow] = useState(true)
+
+  let lastScrollTop = 0;
+
+  //change status of navbar when scroll
+  function headerChange() {
+    let st = window.scrollY || document.documentElement.scrollTop
+    //scroll down
+    if (st > lastScrollTop) {
+      setIsShow(false)
+    }
+    //scroll up
+    else if (st < lastScrollTop) {
+      setIsShow(true)
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', headerChange)
+
+    return () => {
+      window.removeEventListener('scroll', headerChange)
+    }
+  }, [])
   return (
-    <header className="fixed bg-white w-full z-50">
-      <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-4 z-50">
+    <header className={clsx("fixed bg-white w-full z-10", isShow ? "animate-slide_in_top" : "animate-slide_out_top")}>
+      <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-2 z-50">
         {/* Left */}
         <div className="flex space-x-8 items-center justify-start">
           <Link href="/" className="flex items-center space-x-2">
