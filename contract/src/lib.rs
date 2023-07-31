@@ -7,7 +7,7 @@ use campaign::{Campaign,CampaignId, CampaignMetaData, Status};
 use user::{User, UserMetaData, Role};
 use product::{Product, ProductId, ProductMetaData, State};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
-use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise};
+use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise, serde::{Deserialize, Serialize}};
 use near_sdk::borsh::{self, BorshDeserialize};
 pub const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000; 
 
@@ -26,6 +26,22 @@ pub struct Contract {
     collectors: UnorderedMap<i32, User>, //tất cả collectors 
     total_users: i32,
     total_campaign: i32,
+}
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct AllCampaignsData {
+    pub campaign: Vec<Campaign>,
+    pub products: Vec<Product>,
+    
+}
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct CampaignData {
+    pub campaign: Campaign,
+    pub products: Vec<Product>,
+    
 }
 
 pub trait Function {
@@ -54,7 +70,9 @@ pub trait Function {
     fn apply_collector_in_camp(&mut self, camp_id: CampaignId); // collector sẽ bỏ một lượng phí để tham gia vào chiến dịch
     fn distribute_reward(&mut self, camp_id: CampaignId); // chia pool ra cho tất cả các users và collectors có đóng góp vào chiến dịch
     fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise; // thực hiện giao dịch
-    
+    fn get_camp_data(&self, camp_id: CampaignId) -> CampaignData;
+
+    fn get_camp_info(&self) -> AllCampaignsData;
 }
 
 #[near_bindgen]
@@ -135,7 +153,7 @@ impl Function for Contract {
     #[payable]
     fn new_campaign(&mut self, id: CampaignId, fund: Balance, title: String,content :String, image: String, total_checkers: u32, amount: u32, init_time: u64, deadline: u64) -> Campaign {
         assert!(env::account_balance()>=fund, "Your balance is not enough!"); // kiểm tra người khởi tạo có đủ balance không
-        assert_eq!(env::attached_deposit(), fund * ONE_NEAR, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
+        assert_eq!(env::attached_deposit(), fund* ONE_NEAR, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
         // let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
         let total_camp = self.campaigns.len();
         let new_camp = Campaign {
@@ -186,9 +204,13 @@ impl Function for Contract {
 
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId) -> Campaign{
         let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
-        camp.status = status;
+        assert_eq!(env::signer_account_id(), camp.owner, "You do not have permission to change status");
+        camp.status = status.clone();
         self.update_camp_data(camp_id.clone(), &mut camp);
-        self.update_camp_data(camp_id, &mut camp);
+        // self.update_camp_data(camp_id.clone(), &mut camp);
+        if status == Status::Done {
+            self.distribute_reward(camp_id);
+        }
         camp
     }
 
@@ -214,21 +236,24 @@ impl Function for Contract {
         assert_eq!(camp.owner, env::signer_account_id(), "You are not owner of this campaign!");
         let products = self.products_by_campaign.get(&camp_id).unwrap(); 
         for mut i in products.clone() {
-            let reward = (i.total_supply as f32 / camp.total_products as f32) * camp.fund as f32;// tính toán phần thưởng của từng sản phẩm dựa trên số lượng đóng góp/tổng số lượng
-            // let reward = functions::calculate_reward(i.clone(), camp.clone()); 
-            self.send_reward(i.owner.clone(), (reward * 0.8 *  (ONE_NEAR as f32)) as u128); //owner của product sẽ được 80%
-            self.send_reward(i.collector.clone(), (reward * 0.2 *  (ONE_NEAR as f32)) as u128); //collector của product đó sẽ được 20%
-            i.set_reward(reward as u128); // cập nhật phần thưởng của sản phẩm
-            if self.new_transaction_product.len()>99 { // giới hạn 99 sản phẩm 
+            if i.state == State::Confirmed {
+                let reward = (i.total_supply as f32 / camp.total_products as f32) * camp.fund as f32;// tính toán phần thưởng của từng sản phẩm dựa trên số lượng đóng góp/tổng số lượng
+                // let reward = functions::calculate_reward(i.clone(), camp.clone()); 
+                self.send_reward(i.owner.clone(), (reward * 0.8 *  (ONE_NEAR as f32)) as u128); //owner của product sẽ được 80%
+                self.send_reward(i.collector.clone(), (reward * 0.2 *  (ONE_NEAR as f32)) as u128); //collector của product đó sẽ được 20%
+                i.set_reward(reward as u128); // cập nhật phần thưởng của sản phẩm
+                if self.new_transaction_product.len()>99 { // giới hạn 99 sản phẩm 
                 self.new_transaction_product.remove(&99);
             }
-            self.new_transaction_product.insert(&0, &i);
+            self.new_transaction_product.insert(&(self.new_transaction_product.len() as i32), &i);
+            }
         }
+        self.return_collector_stake(camp_id);
     }
 
     fn update_total_prds_camp(&mut self, camp_id: CampaignId) {
         let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
-        let vec_prods = self.products_by_campaign.get(&camp_id).unwrap();
+        let vec_prods: Vec<Product> = self.products_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         let mut new_total = 0;
         for i in vec_prods {
             new_total += i.total_supply;
@@ -241,7 +266,7 @@ impl Function for Contract {
         let camp = self.campaign_by_id.get(&camp_id).unwrap();
         assert_eq!(camp.status, Status::Done, "The campign had not been finished!");
         assert_eq!(camp.owner, env::signer_account_id(), "You are not owner of this campaign!");
-        let collectors = self.collectors_by_campaign.get(&camp_id).unwrap();
+        let collectors: Vec<User> = self.collectors_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         let return_token = (camp.fund / 10) * ONE_NEAR;
         for i in collectors {
             // Promise::new(i.id).transfer(return_token as u128);
@@ -293,13 +318,14 @@ impl Function for Contract {
         let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
         let mut product = self.get_product_by_id(id.clone());
         let mut vec_prods_by_camp = self.products_by_campaign.get(&camp_id).unwrap();
-        let vec_collectors_by_camp = self.collectors_by_campaign.get(&camp_id).unwrap();
+        let vec_collectors_by_camp: Vec<User> = self.collectors_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
         let index = functions::find_index_pro_vec(vec_prods_by_camp.clone(), id.clone());
         vec_prods_by_camp.remove(index as usize); //remove this product out of campaign
         if is_valid {
             if env::signer_account_id() != camp.owner {
                 assert!(functions::contains_checker(vec_collectors_by_camp, env::signer_account_id()), "you are not a checker in this campaign");
                 product.state = State::Validated;
+                product.collector = env::signer_account_id();
                 vec_prods_by_camp.insert(index as usize, product.clone());
             }else {
                 product.state = State::Confirmed;
@@ -373,4 +399,36 @@ impl Function for Contract {
     fn get_product_by_id(&self, id: ProductId)-> Product {
         self.product_by_id.get(&id).unwrap()
     }
+
+
+    fn get_camp_info(&self) -> AllCampaignsData {
+        let mut new_vec_camps: Vec<Campaign> = vec![];
+        let mut new_vec_prods: Vec<Product>= vec![];
+        let camps = self.get_all_campaigns();
+        let prods = &self.new_transaction_product;
+        for i in camps{
+            new_vec_camps.push(i);
+        }
+        for i in 0..prods.len(){
+            new_vec_prods.push(prods.get(&(i as i32)).unwrap());
+        }
+
+        AllCampaignsData { campaign: new_vec_camps, products: new_vec_prods }
+    }
+
+    fn get_camp_data(&self, camp_id: CampaignId) -> CampaignData {
+        let camp: Campaign = self.campaign_by_id.get(&camp_id).unwrap();
+        let mut new_vec_prods: Vec<Product>= vec![];
+        let prods: Vec<Product> = self.products_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
+
+        for i in prods{
+            new_vec_prods.push(i);
+        }
+        CampaignData {
+            campaign:camp,
+            products: new_vec_prods
+        }
+    }
+
+
 }

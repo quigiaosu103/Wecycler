@@ -28,27 +28,9 @@ const amatic_SC = Amatic_SC({
 });
 
 const IntroSection = ({ parsedData, setOpenForm }) => {
-  const dateObject = new Date(parsedData.deadline);
-  const startDateObject = new Date(parsedData.init_time);
+  const dateObject = new Date(parsedData?.deadline);
+  const startDateObject = new Date(parsedData?.init_time);
   const wallet = useAppSelector(selectWallet);
-  const router = useRouter();
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const txhash = urlParams.get("transactionHashes");
-
-    if (txhash) {
-      if (parsedData.status == "Active") {
-        parsedData.status = "Done";
-        router.replace("/over-view?data=" + JSON.stringify(parsedData));
-      }
-
-      if (parsedData.status == "Init") {
-        parsedData.status = "Active";
-        router.replace("/over-view?data=" + JSON.stringify(parsedData));
-      }
-    }
-  }, []);
 
   const getDayWithOrdinalSuffix = (day) => {
     const suffixes = ["st", "nd", "rd"];
@@ -104,10 +86,14 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
   const year = dateObject.getFullYear();
 
   const updateStatus = async () => {
+    let status
+    if(parsedData?.status === "Active") status = "Done"
+    if(parsedData?.status === "Init") status = "Active"
+
     await wallet.callMethod({
       contractId: "dev-1690642410974-51262377694618",
       method: "set_camp_status",
-      args: { status: "Active", camp_id: parsedData?.id },
+      args: { status: status || "Done", camp_id: parsedData?.id },
     });
   };
 
@@ -156,8 +142,8 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
           <div className="grid grid-cols-3 gap-3 w-1/2">
             <Image
               src={
-                isValidUrl(parsedData.meta_data.image)
-                  ? parsedData.meta_data.image
+                isValidUrl(parsedData?.meta_data.image)
+                  ? parsedData?.meta_data.image
                   : pj_title
               }
               alt={"image"}
@@ -266,8 +252,33 @@ const DesciptionSection = ({ parsedData }) => {
 
 const ValidatorSection = ({ data, wallet, userData }) => {
 
+    const [productData, setProductData] = useState(data?.products.filter(product => {
+        if(userData.id === product.owner){
+            return product.state == "Validated"
+        }
+
+        if(userData.role === "Collector"){
+            return product.state == "Init"
+        }
+
+        return true
+    }))
+
+    useEffect(() => {
+        setProductData(data?.products.filter(product => {
+            if(userData.id === product.owner){
+                return product.state == "Validated"
+            }
+    
+            if(userData.role === "Collector"){
+                return product.state == "Init"
+            }
+    
+            return true
+        }))
+    }, [data])
+
     const handleClick = async (target, id, camp_id) => {
-        // console.log(target);
 
         let type = null
         while(type === null){
@@ -288,7 +299,7 @@ const ValidatorSection = ({ data, wallet, userData }) => {
         <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-8 p-8">
             <h1 className="text-5xl font-bold">Validation</h1>
             <div className="p-5 mt-10 grid grid-cols-4 gap-4">
-                {data?.products.map((product, index) => {
+                {productData?.map((product, index) => {
                     return (
                         <div key={index} className="border py-3 border-black px-3 xy-5 rounded-lg flex flex-row items-center space-x-2 justify-center">
                             <Image src={recycleImg} alt="..." width={50} height={50}/>
@@ -409,13 +420,13 @@ export default function Home() {
   return (
     <main>
       <div className={clsx("flex flex-col", play.className)}>
-        <IntroSection parsedData={parsedData} setOpenForm={setAddProductForm} />
-        <DesciptionSection parsedData={parsedData} />
+        <IntroSection parsedData={information?.campaign || parsedData} setOpenForm={setAddProductForm} />
+        <DesciptionSection parsedData={information?.campaign || parsedData} />
         {/* <h1 className='text-5xl fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 tra'>heloooooooooooooooooooooooo</h1> */}
         <Popup2
           isOpen={addProductForm}
           setIsOpen={setAddProductForm}
-          content={<ProductForm data={parsedData} />}
+          content={<ProductForm data={information?.campaign || parsedData} />}
         />
         <ValidatorSection data={information} wallet={wallet} userData={userData}/>
       </div>

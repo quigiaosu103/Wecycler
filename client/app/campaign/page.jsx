@@ -261,13 +261,10 @@ const NewsSection = ({ campaignData }) => {
         console.error("Error fetching data:");
       }
     };
-    
 
     const change_role = async(camp) =>{
       await fetchData();
-
-      
-      const peposit = camp?.fund+'00000000000000000000000'
+      const deposit = camp?.fund+'00000000000000000000000'
 
       await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: deposit,args: {camp_id: camp?.id} })
     }
@@ -503,6 +500,7 @@ const handlePageUnload = () => {
     if(tabLabel=="Collector")
     {change();}
     setActiveTab(tabLabel);
+
   };
 
   return (
