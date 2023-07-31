@@ -13,8 +13,10 @@ const ImageCard = ({src, alt, title,owner, description, linkTo, dataToSend}) => 
               src={src}
               alt={alt}
               className=""
+              width={400} 
+              height={200}
             />
-            <div className="p-8 bg-[#d7ffdb]">
+            <div className="p-8 bg-[#d7ffdb] flex flex-col justify-between h-full">
               <h2 className="text-lg font-bold mb-2">{title}</h2>
               <p className="text-gray-500">{owner}</p>
               <p className="text-gray-500">{description}</p>

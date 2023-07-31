@@ -100,6 +100,15 @@ const IntroSection = ({ parsedData }) => {
         await wallet.callMethod({contractId: "dev-1690642410974-51262377694618", method: "set_camp_status", args: {status: "Active", camp_id: parsedData?.id}})
     }
 
+    const isValidUrl = (url) => {
+        try {
+          new URL(url);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      };
+
     return (
         <div className='flex flex-col'>
             <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-12 shadow-xl rounded-xl">
@@ -125,31 +134,13 @@ const IntroSection = ({ parsedData }) => {
                 <div className="flex flex-row justify-center items-start gap-y-8">
                     <div className="grid grid-cols-3 gap-3 w-1/2">
                         <Image
-                        src={pj_title}
+                        src={ isValidUrl(parsedData.meta_data.image) ? parsedData.meta_data.image : pj_title}
                         alt={"image"}
+                        width={400}
+                        height={400}
                         layout="responsive"
                         // objectFit='contain'
                         className="w-1/3 h-1/2"
-                        ></Image>
-                        <Image
-                        src={pj_title}
-                        alt={"image"}
-                        layout="responsive"
-                        // objectFit='contain'
-                        ></Image>
-                        <Image
-                        src={pj_title}
-                        alt={"image"}
-                        layout="responsive"
-                        // objectFit='contain'
-                        className=""
-                        ></Image>
-                        <Image
-                        src={pj_title}
-                        alt={"image"}
-                        layout="responsive"
-                        // objectFit='contain'
-                        className=""
                         ></Image>
                     </div>
                     <div className="flex flex-col w-1/2 ml-20">

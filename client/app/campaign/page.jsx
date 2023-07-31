@@ -148,7 +148,16 @@ const CampaignSection = ( { campaignData }) => {
 const VolunteSection = ({ campaignData }) => {
 
   const activeCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Active") : [];
-  const maxDisplayedCampaigns = 3;
+  const maxDisplayedCampaigns = 6;
+  
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
 
   return (
     <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
@@ -160,11 +169,11 @@ const VolunteSection = ({ campaignData }) => {
             <p  className="text-3xl tracking-wide mx-2">Campaigns</p>
         </div>
 
-        <div className="flex flex-row justify-between px-16">
+        <div className="grid grid-cols-3 gap-6 justify-between px-16">
             {activeCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
               <div key={campaign.id}>
                 <ImageCard
-                  src={bg}
+                  src={ isValidUrl(campaign.meta_data.image) ? campaign.meta_data.image : bg}
                   alt="Image 65"
                   title={campaign?.meta_data.title}
                   owner = {campaign.owner}
@@ -181,7 +190,15 @@ const VolunteSection = ({ campaignData }) => {
 
 const NewsSection = ({ campaignData }) => {
   const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
-  const maxDisplayedCampaigns = 3;
+  const maxDisplayedCampaigns = 6;
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
     return (
       <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
   
@@ -195,7 +212,7 @@ const NewsSection = ({ campaignData }) => {
             {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
               <div key={campaign.id}>
                 <ImageCard
-                  src={bg}
+                  src={ isValidUrl(campaign.meta_data.image) ? campaign.meta_data.image : bg}
                   alt="Image 65"
                   title={campaign?.meta_data.title}
                   owner = {campaign.owner}
@@ -221,6 +238,15 @@ const NewsSection = ({ campaignData }) => {
 
     const [userData, setUserData] = useState(null);
 
+    const isValidUrl = (url) => {
+      try {
+        new URL(url);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    };
+
     const fetchData = async () => {
       try {
         const getUserResponse = await wallet.viewMethod({
@@ -232,11 +258,10 @@ const NewsSection = ({ campaignData }) => {
         setUserData(getUserResponse);
         
       } catch (error) {
-        console.log("Error fetching data:");
+        console.error("Error fetching data:");
       }
     };
     
-  
 
     const change_role = async(camp) =>{
       await fetchData();
@@ -258,9 +283,11 @@ const NewsSection = ({ campaignData }) => {
               <div key={campaign.id} className="flex flex-row border border-2 rounded-xl border-[#59ec7a]">
                 <div className="flex justify-center items-center  w-2/5">
                   <Image
-                    src={bg}
+                    src={ isValidUrl(campaign.meta_data.image) ? campaign.meta_data.image : bg}
                     alt={"image"}
-                    className="w-1/2 h-1/2 "
+                    className="w-1/2 h-1/2 rounded-full"
+                    width={400} 
+                    height={200}
                     >
                   </Image>
                 </div>
@@ -444,7 +471,6 @@ export default function Home() {
     // }
     get_campaigns();
   }, []);
-  
   
 
   const get_campaigns = async () => {
