@@ -252,7 +252,8 @@ const DesciptionSection = ({ parsedData }) => {
 const ValidatorSection = ({ data, wallet, userData }) => {
 
     const [productData, setProductData] = useState(data?.products.filter(product => {
-        if(userData.id === product.owner){
+        console.log(userData.id, data?.campaign.owner)
+        if(userData.id === data?.campaign.owner){
             return product.state == "Validated"
         }
 
@@ -265,7 +266,7 @@ const ValidatorSection = ({ data, wallet, userData }) => {
 
     useEffect(() => {
         setProductData(data?.products.filter(product => {
-            if(userData.id === product.owner){
+            if(userData.id === data?.campaign.owner){
                 return product.state == "Validated"
             }
     
