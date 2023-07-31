@@ -268,11 +268,11 @@ const NewsSection = ({ campaignData }) => {
 
       if(userData?.role!=="Collector")
       {
-        wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
+        await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
       }
-      const peposit = camp?.fund+'00000000000000000000000'
+      const deposit = camp?.fund+'00000000000000000000000'
 
-      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: peposit,args: {camp_id: camp?.id} })
+      await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: deposit,args: {camp_id: camp?.id} })
     }
     
 

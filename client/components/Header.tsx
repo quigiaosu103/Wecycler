@@ -37,7 +37,7 @@ const Header = (props: IHeaderProps) => {
     }
   }, [])
   return (
-    <header className={clsx("fixed bg-white w-full z-50", isShow ? "animate-slide_in_top" : "animate-slide_out_top")}>
+    <header className={clsx("fixed bg-white w-full z-10", isShow ? "animate-slide_in_top" : "animate-slide_out_top")}>
       <div className="grid grid-cols-2 gap-x-4 max-w-[1440px] mx-auto lg:w-10/12 px-2 py-2 z-50">
         {/* Left */}
         <div className="flex space-x-8 items-center justify-start">
