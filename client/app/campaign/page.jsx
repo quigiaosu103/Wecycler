@@ -261,15 +261,9 @@ const NewsSection = ({ campaignData }) => {
         console.error("Error fetching data:");
       }
     };
-    
 
     const change_role = async(camp) =>{
       await fetchData();
-
-      if(userData?.role!=="Collector")
-      {
-        await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
-      }
       const deposit = camp?.fund+'00000000000000000000000'
 
       await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: deposit,args: {camp_id: camp?.id} })
@@ -483,6 +477,13 @@ export default function Home() {
   };
 
   const [activeTab, setActiveTab] = useState('User');
+
+  const beCollector = async () => {
+    if(userData?.role!=="Collector")
+      {
+        await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
+      }
+  }
   
 
   const handleTabClick = (tabLabel) => {
