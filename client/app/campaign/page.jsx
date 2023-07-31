@@ -53,7 +53,7 @@ const SearchSection = () => {
     <div className="flex flex-row justify-between text-black max-w-[1440px] mx-auto lg:w-10/12 mt-40 p-10 border-2 border-grey rounded-xl">
       <div className="flex flex-col justify-center items-start">
         <h1  className={"text-2xl tracking-wide font-bold"}>
-          Welcome Báo con
+          Welcome
         </h1>
         <p className={"text-lg tracking-wide"}>
         Manage your active Campaign from here.        
@@ -240,6 +240,7 @@ const NewsSection = ({ campaignData }) => {
     const wallet = useAppSelector(selectWallet);
     const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
     const maxDisplayedCampaigns = 10;
+    initCampaigns.sort((a, b) => new Date(b.init_time) - new Date(a.init_time));
 
     const [userData, setUserData] = useState(null);
 
@@ -276,7 +277,7 @@ const NewsSection = ({ campaignData }) => {
     
 
       return (
-        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-8/12 my-8">
+        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-9/12 my-8">
           <div className="flex flex-col justify-between px-16 space-y-8">
             {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
               <div key={campaign.id} className="flex flex-row border border-2 rounded-xl border-[#59ec7a] justify-center items-center">

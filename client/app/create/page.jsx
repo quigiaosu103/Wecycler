@@ -114,7 +114,7 @@ export default function Home() {
               <Image src={userImg} alt="..." />
               <div className="flex flex-col ms-5 justify-center">
                 <h1 className={clsx("font-bold text-5xl", amatic_SC.className)}>
-                  BÁO QUÍ
+                  ACCOUNT
                 </h1>
                 <p className={clsx("text-3xl", amatic_SC.className )}>
                   ACCOUNT: @{wallet?.accountId}
