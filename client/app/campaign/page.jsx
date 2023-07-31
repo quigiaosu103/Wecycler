@@ -266,10 +266,10 @@ const NewsSection = ({ campaignData }) => {
     const change_role = async(camp) =>{
       await fetchData();
 
-      // if(userData?.role!=="Collector")
-      // {
-      //   await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
-      // }
+      if(userData?.role!=="Collector")
+      {
+        await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
+      }
       const deposit = camp?.fund+'00000000000000000000000'
 
       await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: deposit,args: {camp_id: camp?.id} })
@@ -463,13 +463,12 @@ export default function Home() {
   const [campaignData, setCampaignData] = useState(null);
 
   useEffect(() => {
-    // const savedData = localStorage.getItem("campaignData");
-    // if (savedData) {
-    //   setCampaignData(JSON.parse(savedData));
-    // } else {
-      
-    // }
-    get_campaigns();
+    const savedData = localStorage.getItem("campaignData");
+    if (savedData) {
+      setCampaignData(JSON.parse(savedData));
+    } else {
+      get_campaigns();
+    }
   }, []);
   
 
@@ -478,21 +477,24 @@ export default function Home() {
       contractId: "dev-1690642410974-51262377694618",
       method: "get_all_campaigns"
     });
-    //localStorage.setItem("campaignData", JSON.stringify(data));
+    localStorage.setItem("campaignData", JSON.stringify(data));
     setCampaignData(data);
   };
 
   const [activeTab, setActiveTab] = useState('User');
-  
+  const change =()=>{
+    const savedData = localStorage.getItem("userData");
 
-  const handleTabClick = async(tabLabel) => {
-    setActiveTab(tabLabel);
-    if (tabLabel == "Collector") {
-      if(userData?.role!=="Collector")
-      {
-        await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
-      }
+    if(savedData?.role!=="Collector")
+    {
+      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
     }
+  }
+
+  const handleTabClick = (tabLabel) => {
+    
+    setActiveTab(tabLabel);
+
   };
 
   return (
@@ -502,7 +504,10 @@ export default function Home() {
         <CampaignSection campaignData={campaignData}/>
         <div className="flex space-x-4 ml-36">
           <Tab label="User" activeTab={activeTab} onClick={handleTabClick} />
-          <Tab label="Collector" activeTab={activeTab} onClick={handleTabClick} />
+          <Tab label="Collector" activeTab={activeTab} onClick= {() => {
+            handleTabClick();
+            change(); // Execute function2 when the button is clicked
+          }}/>
         </div>
         <div>
           <TabContent label="User" activeTab={activeTab}>

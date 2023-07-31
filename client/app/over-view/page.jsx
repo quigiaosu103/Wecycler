@@ -265,6 +265,24 @@ const DesciptionSection = ({ parsedData }) => {
 
 const ValidatorSection = ({ data, wallet, userData }) => {
 
+    const handleClick = async (target, id, camp_id) => {
+        // console.log(target);
+
+        let type = null
+        while(type === null){
+            target = target.parentElement
+            type = target.getAttribute('data-type')
+        }
+
+        if(type === "cancel"){
+            await wallet.callMethod({contractId: "dev-1690642410974-51262377694618", method: "set_state_product", args: {id, camp_id, is_valid: false}})
+        }
+
+        if(type === "accept"){
+            await wallet.callMethod({contractId: "dev-1690642410974-51262377694618", method: "set_state_product", args: {id, camp_id, is_valid: true}})
+        }
+    }
+
     return (
         <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 mt-8 p-8">
             <h1 className="text-5xl font-bold">Validation</h1>
@@ -273,12 +291,12 @@ const ValidatorSection = ({ data, wallet, userData }) => {
                     return (
                         <div key={index} className="border py-3 border-black px-3 xy-5 rounded-lg flex flex-row items-center space-x-2 justify-center">
                             <Image src={recycleImg} alt="..." width={50} height={50}/>
-                            <h1 className="">{product.meta_data.name}</h1>
+                            <h1 className="me-20">{product.meta_data.name}</h1>
                             {
                                 (userData.id === data.campaign.owner || userData.role === "Collector") && 
-                                <div>
-                                    <button className="border border-black rounded-full bg-[#EC5959] me-2"><FaTimes/></button>
-                                    <button className="border border-black rounded-full bg-[#59EC7A]"><FaCheck/></button>
+                                <div className="" id={product.id} >
+                                    <button data-type="cancel" onClick={(e) => {handleClick(e.target, product.id, product.campaign_id)}} className="border border-black rounded-full p-1 bg-[#EC5959] me-2"><FaTimes/></button>
+                                    <button data-type="accept" onClick={(e) => {handleClick(e.target, product.id, product.campaign_id)}} className="border border-black rounded-full p-1 bg-[#59EC7A]"><FaCheck/></button>
                                 </div>
                             }
                         </div>
@@ -369,18 +387,21 @@ export default function Home() {
   const [information, setInformation] = useState();
   const [userData, setUserData] = useState()
 
-  useEffect(async () => {
-    const data = await wallet?.viewMethod({
-        contractId: "dev-1690642410974-51262377694618",
-        method: "get_camp_data",
-        args: { camp_id: parsedData.id },
-    })
-
-    const dataUser = await wallet?.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_user_by_id",args: {id: wallet.accountId}  })
-
-    setInformation(data)
-    setUserData(dataUser)
-  }, [])
+  useEffect(() => {
+    async function fetchData() {
+        const data = await wallet?.viewMethod({
+            contractId: "dev-1690642410974-51262377694618",
+            method: "get_camp_data",
+            args: { camp_id: parsedData.id },
+        })
+    
+        const dataUser = await wallet?.viewMethod({contractId:"dev-1690642410974-51262377694618", method: "get_user_by_id",args: {id: wallet.accountId}  })
+    
+        setInformation(data)
+        setUserData(dataUser)
+      }
+    fetchData()
+  }, [wallet])
 
   console.log(information)
 
