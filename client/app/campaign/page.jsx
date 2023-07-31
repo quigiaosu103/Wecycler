@@ -19,6 +19,7 @@ import AllMark from "/public/images/AllMark.svg"
 import ActiveMark from "/public/images/ActiveMark.svg"
 import ProgressMark from "/public/images/ProgressMark.svg"
 import CancelMark from "/public/images/CancelMark.svg"
+import coin from "/public/images/coin.svg";
 
 import bg from "/public/images/img65.png"
 import avatar from "/public/images/Avatar.png"
@@ -61,7 +62,7 @@ const SearchSection = () => {
       </div>
 
         <div className="flex items-center w-80">
-            <div className="z-10 w-full max-w-md items-center justify-between font-mono text-sm lg:flex-inline">
+            <div className=" w-full max-w-md items-center justify-between font-mono text-sm lg:flex-inline">
                 <Search onSearch={handleSearch} />
                 {/* <h2 className={'text-2xl mt-20 mx-2 underline'}>Searched for:</h2>
                 <p className={'text-2xl m-2'}> {searchValue}</p> */}
@@ -224,7 +225,7 @@ const NewsSection = ({ campaignData }) => {
             ))}
           </div>
           <div className="w-full flex justify-center mt-16">
-            <Button href={"/over-view"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"See More Campaign"}></Button>  
+            <Button href={"/"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"See More Campaign"}></Button>  
           </div>
       </div>
           
@@ -271,29 +272,36 @@ const NewsSection = ({ campaignData }) => {
     
 
       return (
-        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-10/12 my-8">
+        <div className="flex flex-col text-black max-w-[1440px] mx-auto lg:w-8/12 my-8">
           <div className="flex flex-col justify-between px-16 space-y-8">
             {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
-              <div key={campaign.id} className="flex flex-row border border-2 rounded-xl border-[#59ec7a]">
+              <div key={campaign.id} className="flex flex-row border border-2 rounded-xl border-[#59ec7a] justify-center items-center">
                 <div className="flex justify-center items-center  w-2/5">
                   <Image
                     src={ isValidUrl(campaign.meta_data.image) ? campaign.meta_data.image : bg}
                     alt={"image"}
-                    className="w-1/2 h-1/2 rounded-full"
+                    className="w-1/2 h-1/2 rounded-lg p-4"
                     width={400} 
                     height={200}
                     >
                   </Image>
                 </div>
                 
-                <div className="flex flex-col w-2/5">
-                  <p className="text-2xl">{campaign?.meta_data.title}</p>
-                  <p className="text-lg">Pool: {campaign?.fund}</p>
+                <div className="flex flex-col w-1/5 ">
+                  <p className={clsx("text-4xl tracking-wide font-bold", amatic_SC.className)} >{campaign?.meta_data.title}</p>
+                  <div className="flex flex-row">
+                  <p className="text-lg">Pool: {campaign?.fund}               
+                  </p>
+                  <Image src={coin} alt={"coin"}></Image>
+
+                  </div>
+                  
                 </div>
-                <div className="flex w-1/5 justify-center items-center">
+                <div className="flex w-2/5 justify-center items-center">
                 {/* <Button href={"/"} classes={"text-white bg-[#174931] rounded-md text-2xl"} content={"Aply collector"}></Button>   */}
                   <button      
                     onClick={() =>{ change_role(campaign)}}
+                    className="text-white bg-[#50bb25] rounded-md text-2xl px-4 py-2"
                   >
                     Apply collector
                   </button>
@@ -508,9 +516,17 @@ const handlePageUnload = () => {
       <div className={clsx("flex flex-col", play.className)}>
         <SearchSection/>
         <CampaignSection campaignData={campaignData}/>
-        <div className="flex space-x-4 ml-36">
-          <Tab label="User" activeTab={activeTab} onClick={handleTabClick} />
-          <Tab label="Collector" activeTab={activeTab} onClick= {handleTabClick}/>
+        <div className="flex flex-row  justify-center">
+          <div className="flex space-x-4 justify-center p-3 border border-2 rounded-lg">
+            <Tab label="User" activeTab={activeTab} onClick={handleTabClick} 
+            className={` border ${activeTab === "User" ? "border-[#174931]" : "border-white"} px-4 py-2 rounded-md text-2xl ${activeTab === "User" ? "bg-[#174931] text-white" : "text-[#174931]"} `}
+            />
+            <Tab label="Collector" activeTab={activeTab} onClick= {handleTabClick}
+            className={` border ${activeTab === "Collector" ? "border-[#174931]" : "border-white"} px-4 py-2 rounded-md text-2xl ${activeTab === "Collector" ? "bg-[#174931] text-white" : "text-[#174931]"} `}
+
+            />
+          </div>
+          
         </div>
         <div>
           <TabContent label="User" activeTab={activeTab}>

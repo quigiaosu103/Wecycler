@@ -15,6 +15,7 @@ const Footer = (props: IFooterProps) => {
                         <p>Quí</p>
                         <p>Tiến</p>
                         <p>Hải</p>
+                        <p>Long</p>
                     </span>
                 </div>
                 <div className="flex w-1/3 justify-center">

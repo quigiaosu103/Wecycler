@@ -7,6 +7,7 @@ import rightImage from "/public/images/page2.png"
 import road from "/public/images/road.png"
 import hand from "/public/images/hand.png"
 import crump from "/public/images/crumpled.png"
+
 import group from "/public/images/Group 175.svg"
 import background from "/public/images/OBJECTS.png"
 import arrow2 from "/public/images/arrow2.svg"

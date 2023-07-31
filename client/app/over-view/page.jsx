@@ -142,8 +142,8 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
           </div>
         </div>
 
-        <div className="flex flex-row justify-center items-start gap-y-8">
-          <div className="grid grid-cols-3 gap-3 w-1/2">
+        <div className="flex flex-row justify-center items-start gap-y-8 h-96">
+          <div className="flex w-1/2 justify-center h-full">
             <Image
               src={
                 isValidUrl(parsedData?.meta_data.image)
@@ -154,11 +154,11 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
               width={400}
               height={400}
               layout="responsive"
-              // objectFit='contain'
-              className="w-1/3 h-1/2"
+              objectFit='contain'
+              className="w-1/3 h-1/2 rounded-xl"
             ></Image>
           </div>
-          <div className="flex flex-col w-1/2 ml-20">
+          <div className="flex flex-col w-1/2 ml-20 test">
             <h1
               className={clsx(
                 "text-6xl tracking-wide font-bold text-[#73d88b]",
@@ -202,15 +202,18 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
               />
               <div className="flex flex-row justify-around pt-8">
                 {/* <Button href={"/"} classes={"text-white"} content={<Image src={buttonDonate} alt="buttonApply"/>}></Button>   */}
-
+                  
                 <button
                   type="button"
                   onClick={() => {
                     setOpenForm(true);
-                  }}
-                  className={
-                    "text-black rounded-lg px-5 py-2 bg-[#FFE500] border-2 border-black"
-                  }
+                  }}                  
+                  className={`text-black rounded-lg px-5 py-2 ${
+                    parsedData?.status === "Active"
+                      ? "bg-[#FFE500] border-2 border-black"
+                      : "bg-gray-400 border-2 border-gray-500 cursor-not-allowed"
+                  }`}
+                  disabled={parsedData?.status !== "Active"}
                 >
                   Add Product
                 </button>
