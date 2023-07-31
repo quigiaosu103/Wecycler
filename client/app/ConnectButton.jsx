@@ -37,6 +37,7 @@ function ConnectWalletButton() {
       };
     }
 
+    //localStorage.setItem("walletData", JSON.stringify(wallet))
     wallet.signIn();
   };
 
@@ -47,6 +48,8 @@ function ConnectWalletButton() {
         description: "Please try again later",
         status: "error",
       };
+
+    localStorage.removeItem("userData");
 
     wallet.signOut();
   };
@@ -81,8 +84,14 @@ function ConnectWalletButton() {
 
   useEffect(() => {
     if (isWalletConnected) {
-      fetchData();
+      const savedData = localStorage.getItem("userData");
+      if (savedData) {
+        setUserData(JSON.parse(savedData));
+      } else {
+        fetchData();
+      }
     }
+    
   }, [isWalletConnected]);
 
   const fetchData = async () => {
@@ -105,7 +114,7 @@ function ConnectWalletButton() {
         method: "get_user_by_id",
         args: { id: wallet.accountId }
       });
-
+      localStorage.setItem("userData", JSON.stringify(getUserResponse));
       setUserData(getUserResponse);
     } catch (error) {
       console.error("Error fetching data:", error);
