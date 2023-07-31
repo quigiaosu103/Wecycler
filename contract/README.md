@@ -87,6 +87,41 @@ near call <dev-account> set_greeting '{"message":"howdy"}' --accountId <dev-acco
 # Use near-cli to login your NEAR account
 near login
 ```
+**Contract callMethod:**
+New account:
+```bash
+# You need to create new account to user services
+near call dev-1690642410974-51262377694618 new_user --accountId your_account_id
+```
+Create campaign:
+```bash
+# Ceate new campaign
+near call dev-1690642410974-51262377694618 new_camp '{"id": id_of_campaign, "fund": pool stake, "title": title_of_campaign, "content": description_of_campaign, "image": link_of_image, "amount": total_product_expected, "init_time": init_time_of_campaign, "deadline": deadline_of_campaign}'  --accountId your_account_id --amount pool stake token
+```
+
+Create new collector:
+```bash
+# Switch role of your account become collector
+near call dev-1690642410974-51262377694618 new_collector --accountId your_account_id
+```
+
+Collector apply to campaign:
+```bash
+# Collector apply to campaign
+near call dev-1690642410974-51262377694618 apply_collector_in_camp '{"camp_id": id_of_campaign}"  --accountId your_account_id --amount your stake(10% of pool stake of campaign)
+```
+
+Owner of campaign change campaign's status:
+```bash
+# Change status
+near call dev-1690642410974-51262377694618 set_camp_status '{"status": new_status,""camp_id": id_of_campaign}"  --accountId your_account_id 
+```
+
+Owner of campaign change campaign's status:
+```bash
+# Change status
+near call dev-1690642410974-51262377694618 set_camp_status '{"status": new_status,""camp_id": id_of_campaign}"  --accountId your_account_id 
+```
 
 and then use the logged account to sign the transaction: `--accountId <your-account>`.
 <!-- //user init product->Product(campaign_id)
@@ -99,7 +134,7 @@ and then use the logged account to sign the transaction: `--accountId <your-acco
 //-product: be created-> be validated -> be confirmed
 //*  reward: % đóng góp * fund = 80% producer + 20% collector
 //fix update camp
-near call dev-1690642410974-51262377694618 new_campaign '{"account_balance": 100, "fund": 10, "title": "cp1", "content": "cp", "image": "im", "amount": 50, "init_time": 111, "deadline": 222}'  --accountId quiblc.testnet
+
 
 f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
 
