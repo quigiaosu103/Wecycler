@@ -96,10 +96,27 @@ near call dev-1690642410974-51262377694618 set_camp_status '{"status": new_statu
 Add product to a campaign:
 ```bash
 # Add product
-near call dev-1690642410974-51262377694618 new_product '{"name": , "description"
-image
-total_supply
-camp_id}"  --accountId your_account_id 
+near call dev-1690642410974-51262377694618 new_product '{"name": product_name,"description": your products description,"image": link of image, "total_supply": amount of product, "camp_id": id_of_campaign}' --accountId your_accountId
+```
+
+Collector validate product:
+```bash
+# Change state fof product
+near call dev-1690642410974-51262377694618 new_product '{"id": product_id, "camp_id": id of campaign, "status": bool_value}' --accountId your_accountId
+```
+
+**View methods:**
+
+To see all campaigns:
+```bash
+# Change state fof product
+near view dev-1690642410974-51262377694618 get_all_campaigns  --accountId your_accountId
+```
+
+To see all products of a campaign:
+```bash
+# Change state fof product
+near view dev-1690642410974-51262377694618 get_poducts_by_campaign '{"id": campaign_id}'  --accountId your_accountId
 ```
 
 and then use the logged account to sign the transaction: `--accountId <your-account>`.
