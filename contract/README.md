@@ -1,36 +1,6 @@
 # Hello NEAR Contract
 
-The smart contract exposes two methods to enable storing and retrieving a greeting in the NEAR network.
 
-```rust
-const DEFAULT_GREETING: &str = "Hello";
-
-#[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize)]
-pub struct Contract {
-    greeting: String,
-}
-
-impl Default for Contract {
-    fn default() -> Self {
-        Self{greeting: DEFAULT_GREETING.to_string()}
-    }
-}
-
-#[near_bindgen]
-impl Contract {
-    // Public: Returns the stored greeting, defaulting to 'Hello'
-    pub fn get_greeting(&self) -> String {
-        return self.greeting.clone();
-    }
-
-    // Public: Takes a greeting, such as 'howdy', and records it
-    pub fn set_greeting(&mut self, greeting: String) {
-        // Record a log permanently to the blockchain!
-        log!("Saving greeting {}", greeting);
-        self.greeting = greeting;
-    }
-}
 ```
 
 <br />
@@ -121,6 +91,15 @@ Owner of campaign change campaign's status:
 ```bash
 # Change status
 near call dev-1690642410974-51262377694618 set_camp_status '{"status": new_status,""camp_id": id_of_campaign}"  --accountId your_account_id 
+```
+
+Add product to a campaign:
+```bash
+# Add product
+near call dev-1690642410974-51262377694618 new_product '{"name": , "description"
+image
+total_supply
+camp_id}"  --accountId your_account_id 
 ```
 
 and then use the logged account to sign the transaction: `--accountId <your-account>`.
