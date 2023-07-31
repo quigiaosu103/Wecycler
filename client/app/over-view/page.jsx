@@ -1,7 +1,11 @@
 'use client';
 import clsx from 'clsx'
 import { Play, Amatic_SC } from "@next/font/google"
-import { useSearchParams  } from "next/navigation";
+import { redirect, useSearchParams  } from "next/navigation";
+import { useAppSelector } from "@/context/store";
+import { selectWallet } from "@/features/walletSlice";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Button from "../../components/Button"
 import ProgressBar from "../../components/ProgressBar"
@@ -26,11 +30,28 @@ const amatic_SC = Amatic_SC({
   weight: ['400', '700']
 })
 
-
-
 const IntroSection = ({ parsedData }) => {
     const dateObject = new Date(parsedData.deadline);
     const startDateObject = new Date(parsedData.init_time);
+    const wallet = useAppSelector(selectWallet);
+    const router = useRouter()
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const txhash = urlParams.get("transactionHashes")
+
+        if(txhash) {
+            if(parsedData.status == "Active"){
+                parsedData.status = "Done"
+                router.replace("/over-view?data=" + JSON.stringify(parsedData))
+            }
+
+            if(parsedData.status == "Init"){
+                parsedData.status = "Active"
+                router.replace("/over-view?data=" + JSON.stringify(parsedData))
+            }
+        }
+    }, [])
 
     const getDayWithOrdinalSuffix = (day) => {
         const suffixes = ["st", "nd", "rd"];
@@ -74,6 +95,10 @@ const IntroSection = ({ parsedData }) => {
         // Get the year (4 digits)
     const year = dateObject.getFullYear();
     
+    const updateStatus = async () => {
+
+        await wallet.callMethod({contractId: "dev-1690642410974-51262377694618", method: "set_camp_status", args: {status: "Active", camp_id: parsedData?.id}})
+    }
 
     return (
         <div className='flex flex-col'>
@@ -134,9 +159,12 @@ const IntroSection = ({ parsedData }) => {
                         <p className='text-2xl tracking-wide '>
                             {getDaysLeft(startDateObject,dateObject)} day left
                         </p>
-                        <p className=''>
-                            Status: {parsedData?.status}
-                        </p>
+                        <div className="flex space-x-3">
+                            <p className=''>
+                                Status: {parsedData?.status}
+                            </p>
+                            {wallet?.accountId === parsedData?.owner && (parsedData?.status == "Init" || parsedData?.status == "Active")  && (<button onClick={updateStatus} className="border-2 bg-[#FFE500] border-black rounded-lg px-3">Update</button>)}
+                        </div>
                         <div className='flex flex-row'>
                             <Image
                             src={coin}
@@ -213,12 +241,10 @@ const DesciptionSection = ({parsedData}) => {
   }
   
 
-
 export default function Home() {
     const searchParams = useSearchParams()
     const data = searchParams.get("data")
     const parsedData = JSON.parse(data);
-    console.log(parsedData)
   return (
     <main>
       <div className={clsx("flex flex-col", play.className)}>
