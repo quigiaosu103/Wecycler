@@ -62,7 +62,7 @@ const Header = (props: IHeaderProps) => {
               <Link href="/campaign" className="flex flex-col items-end justify-end group p-3">
                 <p>Campaign</p>
               </Link>
-              <Link href="/" className="flex flex-col items-end justify-end group p-3">
+              <Link href="/learn-more" className="flex flex-col items-end justify-end group p-3">
                 <p>Collector</p>
               </Link>
               <Link href="/create" className="flex flex-col items-end justify-end group p-3">
