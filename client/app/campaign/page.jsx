@@ -269,7 +269,7 @@ const NewsSection = ({ campaignData }) => {
       
       const peposit = camp?.fund+'00000000000000000000000'
 
-      wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: peposit,args: {camp_id: camp?.id} })
+      await wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "apply_collector_in_camp",deposit: deposit,args: {camp_id: camp?.id} })
     }
     
 
