@@ -72,7 +72,6 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
 
     // Convert the difference to days
     const daysLeft = Math.ceil(difference / (1000 * 60 * 60 * 24));
-    const hoursLeft = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     if(daysLeft<1)
     {
       return 0;

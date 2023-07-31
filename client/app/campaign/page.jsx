@@ -150,7 +150,8 @@ const VolunteSection = ({ campaignData }) => {
 
   const activeCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Active") : [];
   const maxDisplayedCampaigns = 6;
-  
+  activeCampaigns.sort((a, b) => new Date(b.init_time) - new Date(a.init_time));
+
   const isValidUrl = (url) => {
     try {
       new URL(url);
@@ -192,6 +193,9 @@ const VolunteSection = ({ campaignData }) => {
 const NewsSection = ({ campaignData }) => {
   const initCampaigns = campaignData ? campaignData.filter(campaign => campaign.status === "Init") : [];
   const maxDisplayedCampaigns = 6;
+
+  initCampaigns.sort((a, b) => new Date(b.init_time) - new Date(a.init_time));
+
   const isValidUrl = (url) => {
     try {
       new URL(url);
