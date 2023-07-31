@@ -36,6 +36,14 @@ pub struct AllCampaignsData {
     
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct CampaignData {
+    pub campaign: Campaign,
+    pub products: Vec<Product>,
+    
+}
+
 pub trait Function {
     fn new()->Self;
     fn get_signer_account(&mut self)-> User;  // lấy về thông tin của tài khoản đang đăng nhập
@@ -62,7 +70,7 @@ pub trait Function {
     fn apply_collector_in_camp(&mut self, camp_id: CampaignId); // collector sẽ bỏ một lượng phí để tham gia vào chiến dịch
     fn distribute_reward(&mut self, camp_id: CampaignId); // chia pool ra cho tất cả các users và collectors có đóng góp vào chiến dịch
     fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise; // thực hiện giao dịch
-    
+    fn get_camp_data(&self, camp_id: CampaignId) -> CampaignData;
 
     fn get_camp_info(&self) -> AllCampaignsData;
 }
@@ -403,5 +411,20 @@ impl Function for Contract {
 
         AllCampaignsData { campaign: new_vec_camps, products: new_vec_prods }
     }
+
+    fn get_camp_data(&self, camp_id: CampaignId) -> CampaignData {
+        let camp: Campaign = self.campaign_by_id.get(&camp_id).unwrap();
+        let mut new_vec_prods: Vec<Product>= vec![];
+        let prods: Vec<Product> = self.products_by_campaign.get(&camp_id).unwrap_or_else(|| Vec::new());
+
+        for i in prods{
+            new_vec_prods.push(i);
+        }
+        CampaignData {
+            campaign:camp,
+            products: new_vec_prods
+        }
+    }
+
 
 }
