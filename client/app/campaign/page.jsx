@@ -164,7 +164,7 @@ const VolunteSection = ({ campaignData }) => {
         <div className=" flex flex-row mb-8">
           
             <p className="text-3xl tracking-wide font-bold text-[#2bd03b]">
-            3 Active 
+            {activeCampaigns?.length} Active 
             </p>
             <p  className="text-3xl tracking-wide mx-2">Campaigns</p>
         </div>
@@ -208,7 +208,7 @@ const NewsSection = ({ campaignData }) => {
               </p>
           </div>
   
-          <div className="flex flex-row justify-between px-16">
+          <div className="grid grid-cols-3 gap-6 justify-between px-16">
             {initCampaigns.slice(0, maxDisplayedCampaigns).map(campaign => (
               <div key={campaign.id}>
                 <ImageCard
@@ -466,8 +466,18 @@ export default function Home() {
     } else {
       get_campaigns();
     }
+    window.addEventListener('beforeunload', handlePageUnload);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handlePageUnload);
+    };
   }, []);
   
+const handlePageUnload = () => {
+    // Clear the data from localStorage when the page is reloaded
+    get_campaigns();
+  };
 
   const get_campaigns = async () => {
     const data = await wallet?.viewMethod({
@@ -477,19 +487,21 @@ export default function Home() {
     localStorage.setItem("campaignData", JSON.stringify(data));
     setCampaignData(data);
   };
-
   const [activeTab, setActiveTab] = useState('User');
+
   const change =()=>{
     const savedData = localStorage.getItem("userData");
-
-    if(savedData?.role!=="Collector")
+    
+    const data = JSON.parse(savedData);
+    if(data.role!="Collector")
     {
       wallet.callMethod({contractId:"dev-1690642410974-51262377694618", method: "new_collector" })
     }
   }
 
   const handleTabClick = (tabLabel) => {
-    
+    if(tabLabel=="Collector")
+    {change();}
     setActiveTab(tabLabel);
   };
 
@@ -500,10 +512,7 @@ export default function Home() {
         <CampaignSection campaignData={campaignData}/>
         <div className="flex space-x-4 ml-36">
           <Tab label="User" activeTab={activeTab} onClick={handleTabClick} />
-          <Tab label="Collector" activeTab={activeTab} onClick= {() => {
-            handleTabClick();
-            change(); // Execute function2 when the button is clicked
-          }}/>
+          <Tab label="Collector" activeTab={activeTab} onClick= {handleTabClick}/>
         </div>
         <div>
           <TabContent label="User" activeTab={activeTab}>

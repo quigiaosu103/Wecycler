@@ -83,6 +83,7 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
     // Parse the date strings to Date objects
     const start = new Date(startDate);
     const end = new Date(endDate);
+    //const today = new
 
     // Calculate the difference between the dates in milliseconds
     const difference = end.getTime() - start.getTime();
