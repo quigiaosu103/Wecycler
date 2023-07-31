@@ -103,4 +103,4 @@ near call dev-1690642410974-51262377694618 new_campaign '{"account_balance": 100
 
 f37d33c078512841956918576d4b0aa849fc7d96251d4b8dec67502fa461b828 -->
 
-//:
+//near call dev-1690642410974-51262377694618 apply_collector_in_camp {"camp_id": "daylanewid"}'  --accountId quivok8t.testnet

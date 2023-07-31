@@ -132,7 +132,6 @@ const CampaignSection = () => {
                   <div className="flex flex-col">
                     <p className="text-2xl tracking-wide font-bold">{activeCampaignsCount} </p>
                     <p className="">Active </p>
-
                   </div>
                 
             </div>

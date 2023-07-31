@@ -7,7 +7,7 @@ use campaign::{Campaign,CampaignId, CampaignMetaData, Status};
 use user::{User, UserMetaData, Role};
 use product::{Product, ProductId, ProductMetaData, State};
 use events::{PurchaseProduct, EventLog, EventLogVariant};
-use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise};
+use near_sdk::{near_bindgen, collections::{UnorderedMap, LookupMap}, AccountId, Balance, borsh::BorshSerialize, env::{self}, PanicOnDefault, Promise, serde::{Deserialize, Serialize}};
 use near_sdk::borsh::{self, BorshDeserialize};
 pub const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000; 
 
@@ -26,6 +26,14 @@ pub struct Contract {
     collectors: UnorderedMap<i32, User>, //tất cả collectors 
     total_users: i32,
     total_campaign: i32,
+}
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct AllCampaignsData {
+    pub campaign: Vec<Campaign>,
+    pub products: Vec<Product>,
+    
 }
 
 pub trait Function {
@@ -55,6 +63,8 @@ pub trait Function {
     fn distribute_reward(&mut self, camp_id: CampaignId); // chia pool ra cho tất cả các users và collectors có đóng góp vào chiến dịch
     fn send_reward(&mut self, id: AccountId, amount: Balance)-> Promise; // thực hiện giao dịch
     
+
+    fn get_camp_info(&self) -> AllCampaignsData;
 }
 
 #[near_bindgen]
@@ -135,7 +145,7 @@ impl Function for Contract {
     #[payable]
     fn new_campaign(&mut self, id: CampaignId, fund: Balance, title: String,content :String, image: String, total_checkers: u32, amount: u32, init_time: u64, deadline: u64) -> Campaign {
         assert!(env::account_balance()>=fund, "Your balance is not enough!"); // kiểm tra người khởi tạo có đủ balance không
-        assert_eq!(env::attached_deposit(), fund * ONE_NEAR, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
+        assert_eq!(env::attached_deposit(), fund* ONE_NEAR, "Wrong deponsit!"); //kiểm tra amount nhập vào với pool
         // let id = functions::generate_hash_key(env::signer_account_id().to_string()+ &init_time.to_string());
         let total_camp = self.campaigns.len();
         let new_camp = Campaign {
@@ -186,9 +196,11 @@ impl Function for Contract {
 
     fn set_camp_status(&mut self, status: Status, camp_id: CampaignId) -> Campaign{
         let mut camp = self.campaign_by_id.get(&camp_id).unwrap();
+        assert_eq!(env::signer_account_id(), camp.owner, "You do not have permission to change status");
         camp.status = status;
         self.update_camp_data(camp_id.clone(), &mut camp);
-        self.update_camp_data(camp_id, &mut camp);
+        self.update_camp_data(camp_id.clone(), &mut camp);
+        self.distribute_reward(camp_id);
         camp
     }
 
@@ -222,8 +234,9 @@ impl Function for Contract {
             if self.new_transaction_product.len()>99 { // giới hạn 99 sản phẩm 
                 self.new_transaction_product.remove(&99);
             }
-            self.new_transaction_product.insert(&0, &i);
+            self.new_transaction_product.insert(&(self.new_transaction_product.len() as i32), &i);
         }
+        self.return_collector_stake(camp_id);
     }
 
     fn update_total_prds_camp(&mut self, camp_id: CampaignId) {
@@ -300,6 +313,7 @@ impl Function for Contract {
             if env::signer_account_id() != camp.owner {
                 assert!(functions::contains_checker(vec_collectors_by_camp, env::signer_account_id()), "you are not a checker in this campaign");
                 product.state = State::Validated;
+                product.collector = env::signer_account_id();
                 vec_prods_by_camp.insert(index as usize, product.clone());
             }else {
                 product.state = State::Confirmed;
@@ -373,4 +387,21 @@ impl Function for Contract {
     fn get_product_by_id(&self, id: ProductId)-> Product {
         self.product_by_id.get(&id).unwrap()
     }
+
+
+    fn get_camp_info(&self) -> AllCampaignsData {
+        let mut new_vec_camps: Vec<Campaign> = vec![];
+        let mut new_vec_prods: Vec<Product>= vec![];
+        let camps = self.get_all_campaigns();
+        let prods = &self.new_transaction_product;
+        for i in camps{
+            new_vec_camps.push(i);
+        }
+        for i in 0..prods.len(){
+            new_vec_prods.push(prods.get(&(i as i32)).unwrap());
+        }
+
+        AllCampaignsData { campaign: new_vec_camps, products: new_vec_prods }
+    }
+
 }
