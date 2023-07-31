@@ -6,6 +6,7 @@
     .fit {
         min-height: calc(100vh - 95px);
     }
+    
     .popup {
         position: fixed;
         top: 0;
@@ -27,9 +28,19 @@
       }
       
       .popup-content {
+        position: fixed; /* Use absolute positioning */
+        top: 50%; /* Center vertically */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%); /* Center both horizontally and vertically */
         background-color: white;
         padding: 30px;
         border-radius: 8px;
+        z-index: 50;
       }
+      /* .popup-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+      } */
       
 }

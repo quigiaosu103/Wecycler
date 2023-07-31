@@ -32,7 +32,7 @@ pub struct ProductMetaData {
     pub name: String,
     pub description: String,
     pub image: String,
-    pub reward: Balance
+    pub reward: Balance,
 }
 
 impl Product {
