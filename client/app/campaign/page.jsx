@@ -458,7 +458,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedData = localStorage.getItem("campaignData");
-    if (savedData) {
+    if (savedData!="undefined"&&savedData) {
       setCampaignData(JSON.parse(savedData));
     } else {
       get_campaigns();

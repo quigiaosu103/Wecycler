@@ -65,16 +65,20 @@ const IntroSection = ({ parsedData, setOpenForm }) => {
     // Parse the date strings to Date objects
     const start = new Date(startDate);
     const end = new Date(endDate);
-    //const today = new
+    const currentTime = new Date();
 
     // Calculate the difference between the dates in milliseconds
-    const difference = end.getTime() - start.getTime();
+    const difference = end.getTime() - currentTime.getTime();
 
     // Convert the difference to days
     const daysLeft = Math.ceil(difference / (1000 * 60 * 60 * 24));
-
-    return daysLeft;
-  };
+    const hoursLeft = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if(daysLeft<1)
+    {
+      return 0;
+    }
+    return daysLeft
+    };
 
   // Get the day (1-31)
   const day = dateObject.getDate();
